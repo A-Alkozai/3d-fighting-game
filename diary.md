@@ -81,3 +81,46 @@
         </td>
     </tr>
 </table>
+
+<table>
+    <tr>
+        <td>
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbDB4Z2RrYTB1OTZ5Ym1hdWZ0aXV6b2QyZzZtMmp2OGsxd3NhczRqbyZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/fqIOmNAvFOaiQO9GFy/giphy.gif" width="80" height="80">
+        </td>
+        <td>
+            <h2>
+                <br>
+                Week 3: &nbsp; 13/10/25 - 17/10/25
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </h2>
+        </td>
+    </tr>
+    <tr></tr>
+    <tr>
+        <td colspan="2">
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ➤ &nbsp;&nbsp; Working on a basic UML diagram of the game logic, containing:
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ◇ &nbsp; State Management
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ◇ &nbsp; Input Management - With AI and Networking considered
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ◇ &nbsp; Combo Management - Creating and matching input --> combo
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ◇ &nbsp; Player - How a player will manage their own logic
+            <br>&nbsp;
+        </td>
+    </tr>
+    <tr></tr>
+    <tr>
+        <td colspan="2">
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ➤ &nbsp;&nbsp; Researching input handling/buffering
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ◇ &nbsp; Will make a list of inputs, which will act as a queue
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ◇ &nbsp; Will set Time-to-Live per input
+            <br>&nbsp;
+        </td>
+    </tr>
+</table>
