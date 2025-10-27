@@ -1,0 +1,81 @@
+# ------------------------
+# Unity default ignores
+# ------------------------
+product/[Ll]ibrary/
+product/[Tt]emp/
+product/[Oo]bj/
+product/[Bb]uild/
+product/[Bb]uilds/
+product/[Ll]ogs/
+product/[Uu]ser[Ss]ettings/
+*.log
+
+# MemoryCaptures and Recordings
+product/[Mm]emoryCaptures/
+product/[Rr]ecordings/
+
+# Unity-generated files
+*.pidb
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+sysinfo.txt
+mono_crash.*
+
+# Visual Studio / Rider
+.vs/
+product/.vscode/
+*.csproj
+*.unityproj
+*.sln
+*.DotSettings.user
+product/[Aa]ssets/Plugins/Editor/JetBrains*
+.gradle/
+
+# Build outputs
+*.apk
+*.aab
+*.app
+*.unitypackage
+
+# MacOS system files
+.DS_Store
+*/.DS_Store
+
+# ------------------------
+# Project-specific ignores
+# ------------------------
+
+# Ignore Unity generated folders in Assets
+product/Packages/com.unity.xxx/
+
+# Ignore large Art and Audio assets folders
+product/Assets/Art/
+product/Assets/Audio/
+
+# Ignore data and prefabs/scenes folders
+product/Assets/Project/Data/
+product/Assets/Project/Prefabs/
+product/Assets/Project/Scenes/
+
+# Ignore .meta files of ignored folders
+product/Packages/com.unity.xxx.meta
+product/Assets/Art.meta
+product/Assets/Audio.meta
+product/Assets/Project/Data.meta
+product/Assets/Project/Prefabs.meta
+product/Assets/Project/Scenes.meta
+
+# Ignoring symlinks (They are files, so they don't end with /)
+product/Assets/Art
+product/Assets/Audio
+product/Assets/Project/Data
+product/Assets/Project/Prefabs
+product/Assets/Project/Scenes
