@@ -3,23 +3,31 @@ using System.Collections.Generic;
 
 public class InputManager : MonoBehaviour
 {
-    IInputProvider inputProvider;
+    private InputContext inputContext;
+    private Dictionary<IInputProvider, Player> inputToPlayerMap = new Dictionary<IInputProvider, Player>();
 
-    public void AddInputProvider(IInputProvider inputProvider)
+    public void AddInputToPlayerMap(IInputProvider inputProvider, Player player)
     {
-        this.inputProvider = inputProvider;
+        inputToPlayerMap.Add(inputProvider, player);
     }
 
     public void update()
     {
-        if (inputProvider == null) { return; }
+        if (inputToPlayerMap.Count == 0) { return; }
 
-        List<InputObject> receivedInputs = inputProvider.GetInputs();
-        if (receivedInputs.Count == 0) { return; }
-
-        foreach (InputObject input in receivedInputs)
+        foreach (var inputPlayerPair in inputToPlayerMap)
         {
-            Debug.Log("Added Input: " + input.GetInputCommand());
+            List<InputObject> recievedInputs = inputPlayerPair.Key.GetInputs();
+            if (recievedInputs.Count == 0) { return; }
+
+            foreach (InputObject input in recievedInputs)
+            {
+                inputPlayerPair.Value.GetInputBuffer().AddInput(input);
+                if (inputPlayerPair.Key is LocalInputProvider)
+                {
+                    Debug.Log("Added Input: " + input.GetInputCommand());
+                }
+            }
         }
     }
 }
