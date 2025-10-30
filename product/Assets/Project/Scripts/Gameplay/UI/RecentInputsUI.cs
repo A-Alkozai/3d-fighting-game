@@ -36,13 +36,13 @@ public class RecentInputsUI : MonoBehaviour
                 maxInputs = Mathf.FloorToInt(panelWidth / prefabWidth);
                 float totalSpacing = panelWidth - (maxInputs * prefabWidth);
 
-                while ((totalSpacing / maxInputs) < minSpacing)
+                while ((totalSpacing / (maxInputs - 1)) < minSpacing && maxInputs > 1)
                 {
                     maxInputs--;
                     totalSpacing += prefabWidth;
                 }
 
-                panelLayout.spacing = totalSpacing / maxInputs;
+                panelLayout.spacing = totalSpacing / (maxInputs - 1);
             }
         }
 
