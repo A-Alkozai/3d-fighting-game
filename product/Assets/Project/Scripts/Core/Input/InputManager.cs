@@ -4,11 +4,17 @@ using System.Collections.Generic;
 public class InputManager : MonoBehaviour
 {
     private InputContext inputContext;
+    private RecentInputsUI recentInputsUI;
     private Dictionary<IInputProvider, Player> inputToPlayerMap = new Dictionary<IInputProvider, Player>();
 
     public void AddInputToPlayerMap(IInputProvider inputProvider, Player player)
     {
         inputToPlayerMap.Add(inputProvider, player);
+    }
+
+    public void AddRecentInputsUI(RecentInputsUI recentInputsUI)
+    {
+        this.recentInputsUI = recentInputsUI;
     }
 
     public void update()
@@ -23,9 +29,9 @@ public class InputManager : MonoBehaviour
             foreach (InputObject input in recievedInputs)
             {
                 inputPlayerPair.Value.GetInputBuffer().AddInput(input);
-                if (inputPlayerPair.Key is LocalInputProvider)
+                if (inputPlayerPair.Key is LocalInputProvider && recentInputsUI.GetIsActive())
                 {
-                    Debug.Log("Added Input: " + input.GetInputCommand());
+                    recentInputsUI.AddRecentInput(input.GetInputKey().ToString());
                 }
             }
         }
