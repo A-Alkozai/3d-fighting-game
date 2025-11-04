@@ -193,6 +193,9 @@
             <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             ◇ &nbsp; Displays the most recent inputs on the screen
             <br>&nbsp;
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2NqcjB6b3V4MXZ5b2UxMDEyZW4wZHJqOGl4YWhxczN1MzFlczB3aCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/auaM7ajGtJAkyCV1TY/giphy.gif" width="200" height="120">
+            <br>&nbsp;
         </td>
     </tr>
     <tr></tr>
@@ -206,4 +209,5 @@
         </td>
     </tr>
 </table>
+
 
