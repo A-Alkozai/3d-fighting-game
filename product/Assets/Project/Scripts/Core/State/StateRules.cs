@@ -21,7 +21,8 @@ public struct StateRules
         [PlayerStates.Dashing] = new StateRules
         {
             Blocks = DisableMovement | InAir | PlayerStates.Lying | PlayerStates.Crouching,
-            Overrides = PlayerStates.Idle | PlayerStates.Walking | PlayerStates.Running | PlayerStates.RunMomentum,
+            Overrides = PlayerStates.Idle | PlayerStates.Walking | PlayerStates.Running | PlayerStates.RunMomentum
+                                          | PlayerStates.Sidestepping,
         },
         [PlayerStates.Running] = new StateRules
         {
@@ -38,6 +39,7 @@ public struct StateRules
         {
             Blocks = DisableMovement | InAir | PlayerStates.Lying | PlayerStates.Jumping | PlayerStates.Crouching,
             Overrides = PlayerStates.Idle | PlayerStates.Walking | PlayerStates.Running | PlayerStates.RunMomentum
+                                          | PlayerStates.Dashing
         },
         [PlayerStates.Rolling] = new StateRules
         {
