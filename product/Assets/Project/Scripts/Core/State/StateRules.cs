@@ -82,6 +82,8 @@ public struct StateRules
 
     public static StateRules GetStateRule(PlayerStates state)
     {
-        return stateRules[state];
+        if (stateRules.TryGetValue(state, out StateRules rule))
+            return rule;
+        return new StateRules();
     }
 }
