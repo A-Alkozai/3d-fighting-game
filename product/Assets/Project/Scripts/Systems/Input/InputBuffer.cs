@@ -37,7 +37,7 @@ public class InputBuffer
 
     public void UpdateFrameCounter()
     {
-        if (inputBuffer != null) { return; }
+        if (inputBuffer.Count <= 0) { return; }
 
         foreach (InputObject input in inputBuffer)
         {
