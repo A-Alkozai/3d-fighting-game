@@ -17,9 +17,12 @@ public class MoveData
     [SerializeField] private int inputDelay;
     [SerializeField] private int branchDelay;
 
-    [SerializeField] private List<InputCommand> inputSequence;
+    [SerializeField] private List<string> inputSequence;
     [SerializeField] private List<string> branchMoves;
-    [SerializeField] private List<PlayerStates> requiredStates;
+    [SerializeField] private List<string> requiredStates;
+
+    private List<InputCommand> inputSequenceObj = new List<InputCommand>();
+    private List<PlayerStates> requiredStatesObj = new List<PlayerStates>();
 
     public string Id => id;
     public string MoveName => moveName;
@@ -33,7 +36,26 @@ public class MoveData
     public int InputDelay => inputDelay;
     public int BranchDelay => branchDelay;
 
-    public IReadOnlyList<InputCommand> InputSequence => inputSequence;
+    public IReadOnlyList<InputCommand> InputSequence => inputSequenceObj;
     public IReadOnlyList<string> BranchMoves => branchMoves;
-    public IReadOnlyList<PlayerStates> RequiredStates => requiredStates;
+    public IReadOnlyList<PlayerStates> RequiredStates => requiredStatesObj;
+
+    public void InitialiseObjects()
+    {
+        foreach (string rawInputCommand in inputSequence)
+        {
+            if (Enum.TryParse<InputCommand>(rawInputCommand, out InputCommand inputCommand))
+            {
+                inputSequenceObj.Add(inputCommand);
+            }
+        }
+
+        foreach (string rawState in requiredStates)
+        {
+            if (Enum.TryParse<PlayerStates>(rawState, out PlayerStates playerState))
+            {
+                requiredStatesObj.Add(playerState);
+            }
+        }
+    }
 }

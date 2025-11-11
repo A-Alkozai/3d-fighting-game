@@ -7,7 +7,7 @@ public class BaseDatabase<T>
     protected List<T> list = new List<T>();
     protected string filePath;
 
-    public void ReadJson()
+    public virtual void ReadJson()
     {
         JsonLoader.LoadJSON<T>(list, filePath);
     }
