@@ -5,7 +5,7 @@ using UnityEngine;
 
 public static class JsonLoader
 {
-    public static void LoadJSON<T>(List<T> list, string filePath)
+    public static void LoadJSON<T>(Dictionary<string, T> dict, string filePath) where T : IIdentifiable
     {
         if (!File.Exists(filePath))
         {
@@ -28,7 +28,7 @@ public static class JsonLoader
 
         foreach (T item in wrapper.items)
         {
-            list.Add(item);
+            dict.Add(item.Id, item);
         }
     }
 
