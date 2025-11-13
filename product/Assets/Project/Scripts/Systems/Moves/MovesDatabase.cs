@@ -12,37 +12,35 @@ public class MovesDatabase : BaseDatabase<MoveData>
     public override void ReadJson()
     {
         base.ReadJson();
-        foreach (MoveData move in list)
+        foreach (var pair in dict)
         {
-            move.InitialiseObjects();
+            pair.Value.InitialiseObjects(dict);
+        }
+        RemoveNonRootMoves();
+    }
+
+    public void RemoveNonRootMoves()
+    {
+        List<string> keyToRemove = new List<string>();
+        foreach (var pair in dict)
+        {
+            if (pair.Value.PrevMove != null)
+            {
+                keyToRemove.Add(pair.Key);
+            }
+        }
+        foreach (string key in keyToRemove)
+        {
+            dict.Remove(key);
         }
     }
 
     public List<MoveData> GetMoveByIDs(List<string> ids)
     {
         List<MoveData> moves = new List<MoveData>();
-        foreach (MoveData move in list)
+        foreach (string id in ids)
         {
-            foreach (string id in ids)
-            {
-                if (move.Id == id)
-                {
-                    moves.Add(move);
-                }
-            }
-        }
-        return moves;
-    }
-
-    public List<MoveData> GetMoveByInput(InputCommand input)
-    {
-        List<MoveData> moves = new List<MoveData>();
-        foreach (MoveData move in list)
-        {
-            if (move.InputSequence[0] == input)
-            {
-                moves.Add(move);
-            }
+            moves.Add(dict[id]);
         }
         return moves;
     }
