@@ -1,27 +1,14 @@
 using System.Collections.Generic;
 using System;
 
-public class BaseDatabase<T>
+public class BaseDatabase<T> where T : IIdentifiable
 {
 
-    protected List<T> list = new List<T>();
+    protected Dictionary<string, T> dict = new Dictionary<string, T>();
     protected string filePath;
 
     public virtual void ReadJson()
     {
-        JsonLoader.LoadJSON<T>(list, filePath);
+        JsonLoader.LoadJSON<T>(dict, filePath);
     }
-
-    public void Add(T item)
-    {
-        list.Add(item);
-    }
-
-    public void Remove(T item)
-    {
-        list.Remove(item);
-    }
-
-    public List<T> GetList()
-    { return list; }
 }

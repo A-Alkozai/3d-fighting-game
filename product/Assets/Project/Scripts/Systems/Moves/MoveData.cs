@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
-public class MoveData
+public class MoveData : IIdentifiable
 {
     [SerializeField] private string id;
     [SerializeField] private string moveName;
@@ -24,6 +24,9 @@ public class MoveData
     private List<InputCommand> inputSequenceObj = new List<InputCommand>();
     private List<PlayerStates> requiredStatesObj = new List<PlayerStates>();
 
+    private MoveData prevMove;
+    private Dictionary<string, MoveData> nextMoves = new Dictionary<string, MoveData>();
+
     public string Id => id;
     public string MoveName => moveName;
     public string Description => description;
@@ -37,10 +40,39 @@ public class MoveData
     public int BranchDelay => branchDelay;
 
     public IReadOnlyList<InputCommand> InputSequence => inputSequenceObj;
-    public IReadOnlyList<string> BranchMoves => branchMoves;
     public IReadOnlyList<PlayerStates> RequiredStates => requiredStatesObj;
+    public MoveData PrevMove => prevMove;
+    public IReadOnlyDictionary<string, MoveData> NextMoves => nextMoves;
 
-    public void InitialiseObjects()
+    internal void SetPrevMove(MoveData move)
+    {
+        prevMove = move;
+    }
+
+    public void InitialiseObjects(Dictionary<string, MoveData> dict)
+    {
+        InitialiseBranches(dict);
+        InitialiseInputs();
+        InitialiseStates();
+    }
+
+    private void InitialiseBranches(Dictionary<string, MoveData> dict)
+    {
+        foreach (string branchId in branchMoves)
+        {
+            if (dict.TryGetValue(branchId, out MoveData branchMove))
+            {
+                nextMoves[branchId] = branchMove;
+                branchMove.SetPrevMove(this);
+            }
+            else
+            {
+                Debug.LogWarning($"Move '{Id}' contains unknown branch '{branchId}'");
+            }
+        }
+    }
+
+    private void InitialiseInputs()
     {
         foreach (string rawInputCommand in inputSequence)
         {
@@ -49,7 +81,10 @@ public class MoveData
                 inputSequenceObj.Add(inputCommand);
             }
         }
+    }
 
+    private void InitialiseStates()
+    {
         foreach (string rawState in requiredStates)
         {
             if (Enum.TryParse<PlayerStates>(rawState, out PlayerStates playerState))
