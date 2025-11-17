@@ -50,6 +50,15 @@ public class MovesDatabase : BaseDatabase<MoveData>
         return node;
     }
 
+    public MoveNode GetNodeByInput(InputCommand input)
+    {
+        if (rootMoveNode.NextNodes.ContainsKey(input))
+        {
+            return rootMoveNode.NextNodes[input];
+        }
+        return null;
+    }
+
     public List<MoveData> GetMoveByIDs(List<string> ids)
     {
         List<MoveData> moves = new List<MoveData>();
