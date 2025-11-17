@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class InputBuffer
 {
     private List<InputObject> inputBuffer = new List<InputObject>();
-    private int inputTTL = 6;
+    private int inputTTL = 8;
 
     public void AddInput(InputObject input)
     {
@@ -44,6 +44,20 @@ public class InputBuffer
             input.GetFrame().UpdateFrame();
         }
 
+    }
+
+    public InputObject GetInputAt(int index)
+    {
+        if (index >= inputBuffer.Count || index < 0)
+        {
+            return null;
+        }
+        return inputBuffer[index];
+    }
+
+    public bool IsEmpty()
+    {
+        return inputBuffer.Count == 0;
     }
 
     public List<InputObject> GetInputBuffer()
