@@ -23,19 +23,21 @@ public class StateManager
 
     public void EnterState(PlayerStates state)
     {
+        if (state == PlayerStates.Grounded) return;
         PlayerStates overrides = StateRules.GetStateRule(state).Overrides;
 
-        AddState(state);
         Debug.Log("Entered State: " + state);
+        AddState(state);
         RemoveState(overrides);
     }
 
     public void ExitState(PlayerStates state)
     {
+        if (state == PlayerStates.Grounded) return;
         PlayerStates nextState = StateRules.GetStateRule(state).Next;
 
-        RemoveState(state);
         Debug.Log("Exited State: " + state);
+        RemoveState(state);
         if (nextState != 0)
         {
             AddState(nextState);
