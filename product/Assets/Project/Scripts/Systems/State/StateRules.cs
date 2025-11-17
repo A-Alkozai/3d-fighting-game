@@ -66,7 +66,7 @@ public struct StateRules
 
         [PlayerStates.Attacking] = new StateRules
         {
-            Blocks = DisableMovement,
+            Blocks = PlayerStates.Stunned | PlayerStates.Recovery,
             Overrides = PlayerStates.Idle | PlayerStates.Walking | PlayerStates.Running | PlayerStates.RunMomentum
                                           | PlayerStates.Dashing | PlayerStates.Rising | PlayerStates.Guarding,
         },
