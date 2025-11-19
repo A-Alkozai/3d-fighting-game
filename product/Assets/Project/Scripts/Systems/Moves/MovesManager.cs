@@ -7,7 +7,7 @@ public class MovesManager
         movesDatabase.ReadJson();
     }
 
-    public MovesDatabase GetMovesList()
+    public MovesDatabase GetMovesDatabase()
     {
         return movesDatabase;
     }

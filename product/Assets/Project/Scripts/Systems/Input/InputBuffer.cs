@@ -4,16 +4,16 @@ using System.Collections.Generic;
 public class InputBuffer
 {
     private List<InputObject> inputBuffer = new List<InputObject>();
-    private int inputTTL = 6;
+    private int inputTTL = 8;
 
     public void AddInput(InputObject input)
     {
         inputBuffer.Add(input);
     }
 
-    public void RemoveInput(InputObject input)
+    public void RemoveInputAt(int index)
     {
-        inputBuffer.Remove(input);
+        inputBuffer.RemoveAt(index);
     }
 
     public void RemoveExpiredInputs()
@@ -44,6 +44,20 @@ public class InputBuffer
             input.GetFrame().UpdateFrame();
         }
 
+    }
+
+    public InputObject GetInputAt(int index)
+    {
+        if (index >= inputBuffer.Count || index < 0)
+        {
+            return null;
+        }
+        return inputBuffer[index];
+    }
+
+    public int Count()
+    {
+        return inputBuffer.Count;
     }
 
     public List<InputObject> GetInputBuffer()

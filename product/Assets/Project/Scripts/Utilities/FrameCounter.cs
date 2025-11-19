@@ -1,6 +1,11 @@
 public class FrameCounter
 {
-    private int frameNumber = 0;
+    private int frameNumber;
+
+    public FrameCounter(int frameNumber = 0)
+    {
+        this.frameNumber = frameNumber;
+    }
 
     public void UpdateFrame()
     {
@@ -10,5 +15,10 @@ public class FrameCounter
     public int GetFrameNumber()
     {
         return frameNumber;
+    }
+
+    public void DisableFrame()
+    {
+        frameNumber = -1;
     }
 }

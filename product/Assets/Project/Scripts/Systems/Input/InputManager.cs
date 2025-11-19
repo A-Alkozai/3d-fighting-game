@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 public class InputManager : MonoBehaviour
 {
-    private InputContext inputContext;
     private RecentInputsUI recentInputsUI;
     private Dictionary<IInputProvider, Player> inputToPlayerMap = new Dictionary<IInputProvider, Player>();
 
@@ -28,10 +27,18 @@ public class InputManager : MonoBehaviour
 
             foreach (InputObject input in recievedInputs)
             {
-                inputPlayerPair.Value.GetInputBuffer().AddInput(input);
+                if (input.IsHeld())
+                {
+                    inputPlayerPair.Value.GetInputInterpreter().AddHeldInput(input);
+                }
+                else
+                {
+                    inputPlayerPair.Value.GetInputBuffer().AddInput(input);
+                }
+
                 if (inputPlayerPair.Key is LocalInputProvider && recentInputsUI.GetIsActive())
                 {
-                    recentInputsUI.AddRecentInput(input.GetInputKey().ToString());
+                    recentInputsUI.AddRecentInput(input);
                 }
             }
         }

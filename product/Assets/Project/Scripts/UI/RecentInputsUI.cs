@@ -11,6 +11,9 @@ public class RecentInputsUI : MonoBehaviour
     private List<GameObject> displayedInputs = new List<GameObject>();
     private int maxInputs;
     private float minSpacing = 30f;
+    private Color32 defaultInputColour = new Color32(219, 219, 219, 255);
+    private Color32 holdingInputColour = new Color32(60, 116, 135, 255);
+    private Color32 releasedInputColour = new Color32(84, 196, 210, 255);
 
     void Start()
     {
@@ -49,14 +52,40 @@ public class RecentInputsUI : MonoBehaviour
         DestroyImmediate(temp);
     }
 
-    public void AddRecentInput(string newInput)
+    public void AddRecentInput(InputObject newInput)
     {
         if (!GetIsActive()) { return; }
+
+        string inputKey = newInput.GetInputKey().ToString();
+
+        if (newInput.IsHeld() && newInput.GetFrame().GetFrameNumber() == -1)
+        {
+            foreach (GameObject obj in displayedInputs)
+            {
+                TextMeshProUGUI text = obj.GetComponentInChildren<TextMeshProUGUI>();
+                Image[] imagesList = obj.GetComponentsInChildren<Image>(true);
+                Color keyColour = imagesList[2].color;
+                if (text != null && text.text == inputKey && keyColour == holdingInputColour)
+                {
+                    imagesList[2].color = releasedInputColour;
+                    return;
+                }
+            }
+            return;
+        }
 
         RemoveExcessInputs();
 
         GameObject inputPrefabObj = Instantiate(inputPrefab, recentInputPanel.transform);
-        inputPrefabObj.GetComponentInChildren<TextMeshProUGUI>().text = newInput;
+        inputPrefabObj.GetComponentInChildren<TextMeshProUGUI>().text = inputKey;
+
+        Image[] images = inputPrefabObj.GetComponentsInChildren<Image>(true);
+        images[2].color = defaultInputColour;
+        if (newInput.IsHeld())
+        {
+            images[2].color = holdingInputColour;
+        }
+
         displayedInputs.Add(inputPrefabObj);
     }
 
