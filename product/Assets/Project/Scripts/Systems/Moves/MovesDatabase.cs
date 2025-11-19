@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class MovesDatabase : BaseDatabase<MoveData>
 {
-    private MoveNode rootMoveNode = new MoveNode();
+    private MoveNode rootAttackNode = new MoveNode();
+    private MoveNode rootMovementNode = new MoveNode();
 
-    public MoveNode RootMoveNode => rootMoveNode;
+    public MoveNode RootAttackNode => rootAttackNode;
+    public MoveNode RootMovementNode => rootMovementNode;
 
     public MovesDatabase()
     {
@@ -20,15 +22,23 @@ public class MovesDatabase : BaseDatabase<MoveData>
         {
             pair.Value.InitialiseObjects();
         }
-        InitialiseMoveTree();
+        InitialiseTrees();
     }
 
-    public void InitialiseMoveTree()
+    public void InitialiseTrees()
     {
         foreach (var pair in dict)
         {
             IReadOnlyList<InputCommand> inputs = pair.Value.InputSequence;
-            MoveNode targetNode = CreateNodePath(rootMoveNode, inputs);
+            MoveNode targetNode;
+            if (pair.Value.MoveType == "movement")
+            {
+                targetNode = CreateNodePath(rootMovementNode, inputs);
+            }
+            else
+            {
+                targetNode = CreateNodePath(rootAttackNode, inputs);
+            }
             targetNode.AddMoveData(pair.Value);
         }
     }
@@ -50,11 +60,11 @@ public class MovesDatabase : BaseDatabase<MoveData>
         return node;
     }
 
-    public MoveNode GetNodeByInput(InputCommand input)
+    public MoveNode GetNextNode(InputCommand input, MoveNode node)
     {
-        if (rootMoveNode.NextNodes.ContainsKey(input))
+        if (node.NextNodes.ContainsKey(input))
         {
-            return rootMoveNode.NextNodes[input];
+            return node.NextNodes[input];
         }
         return null;
     }
