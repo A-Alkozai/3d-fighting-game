@@ -4,7 +4,7 @@ public class StateManager
 {
 
     private PlayerStates playerStates = new PlayerStates();
-    private FacingDirection facingDirection = new FacingDirection();
+    private FacingDirection facingDirection = FacingDirection.Right;
     private PlayerStates prevBaseState = PlayerStates.Idle;
 
     public bool CanToggleState(PlayerStates state)
@@ -13,7 +13,7 @@ public class StateManager
         { return false; }
 
         PlayerStates blocks = StateRules.GetStateRule(state).Blocks;
-        
+
         if (blocks == 0) { return true; }
 
         if (HasState(blocks)) { return false; }
@@ -72,5 +72,10 @@ public class StateManager
     public void ResetState()
     {
         playerStates = 0;
+    }
+
+    public FacingDirection GetFacingDirection()
+    {
+        return facingDirection;
     }
 }
