@@ -7,9 +7,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] Player player1;
     [SerializeField] Player player2;
 
-    IInputProvider inputProvider1;
-    IInputProvider inputProvider2;
-    InputKeys inputKeys;
+    private IInputProvider inputProvider1;
+    private IInputProvider inputProvider2;
+    private InputKeys inputKeys;
 
     void Start()
     {
@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
         inputProvider1 = new LocalInputProvider(inputKeys);
         inputManager.AddInputToPlayerMap(inputProvider1, player1);
         inputManager.AddRecentInputsUI(uiManager.GetRecentInputsUI());
+        player1.start();
     }
 
     void Update()
