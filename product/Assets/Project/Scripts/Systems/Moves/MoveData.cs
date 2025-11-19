@@ -8,9 +8,8 @@ public class MoveData : IIdentifiable
     [SerializeField] private string id;
     [SerializeField] private string moveName;
     [SerializeField] private string description;
-    [SerializeField] private int startupFrames;
-    [SerializeField] private int activeFrames;
-    [SerializeField] private int recoveryFrames;
+    [SerializeField] private string moveType;
+    [SerializeField] private bool isLoop;
     [SerializeField] private int totalFrames;
     [SerializeField] private int inputDelay;
     [SerializeField] private int branchDelay;
@@ -23,9 +22,8 @@ public class MoveData : IIdentifiable
     public string Id => id;
     public string MoveName => moveName;
     public string Description => description;
-    public int StartupFrames => startupFrames;
-    public int ActiveFrames => activeFrames;
-    public int RecoveryFrames => recoveryFrames;
+    public string MoveType => moveType;
+    public bool IsLoop => isLoop;
     public int TotalFrames => totalFrames;
     public int InputDelay => inputDelay;
     public int BranchDelay => branchDelay;
