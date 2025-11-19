@@ -11,9 +11,9 @@ public class InputBuffer
         inputBuffer.Add(input);
     }
 
-    public void RemoveInput(InputObject input)
+    public void RemoveInputAt(int index)
     {
-        inputBuffer.Remove(input);
+        inputBuffer.RemoveAt(index);
     }
 
     public void RemoveExpiredInputs()
@@ -55,9 +55,9 @@ public class InputBuffer
         return inputBuffer[index];
     }
 
-    public bool IsEmpty()
+    public int Count()
     {
-        return inputBuffer.Count == 0;
+        return inputBuffer.Count;
     }
 
     public List<InputObject> GetInputBuffer()
