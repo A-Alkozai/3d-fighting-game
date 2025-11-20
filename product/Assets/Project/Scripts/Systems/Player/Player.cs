@@ -5,28 +5,28 @@ public class Player : MonoBehaviour
     private InputBuffer inputBuffer = new InputBuffer();
     private MovesManager movesManager = new MovesManager();
     private StateManager stateManager = new StateManager();
-    private InputInterpreter inputInterpreter;
+    private MoveSelector moveSelector;
 
     public InputBuffer GetInputBuffer()
     {
         return inputBuffer;
     }
 
-    public InputInterpreter GetInputInterpreter()
+    public MoveSelector GetMoveSelector()
     {
-        return inputInterpreter;
+        return moveSelector;
     }
 
     public void start()
     {
         movesManager.LoadMoves();
-        inputInterpreter = new InputInterpreter(inputBuffer, movesManager.GetMovesDatabase(), stateManager);
+        moveSelector = new MoveSelector(inputBuffer, movesManager.GetMovesDatabase(), stateManager);
     }
 
     public void update()
     {
         inputBuffer.UpdateFrameCounter();
         inputBuffer.RemoveExpiredInputs();
-        inputInterpreter.Update();
+        moveSelector.Update();
     }
 }

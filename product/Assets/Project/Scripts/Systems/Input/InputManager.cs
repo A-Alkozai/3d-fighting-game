@@ -29,7 +29,7 @@ public class InputManager : MonoBehaviour
             {
                 if (input.IsHeld())
                 {
-                    inputPlayerPair.Value.GetInputInterpreter().AddHeldInput(input);
+                    inputPlayerPair.Value.GetMoveSelector().AddHeldInput(input);
                 }
                 else
                 {

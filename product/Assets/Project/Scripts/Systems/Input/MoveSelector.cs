@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class InputInterpreter
+public class MoveSelector
 {
     // Objects
     private InputBuffer inputBuffer;
@@ -28,7 +28,7 @@ public class InputInterpreter
     public MoveNode ActiveAttackNode => activeAttackNode;
     public MoveNode ActiveMovementNode => activeMovementNode;
 
-    public InputInterpreter(InputBuffer inputBuffer, MovesDatabase movesDatabase, StateManager stateManager)
+    public MoveSelector(InputBuffer inputBuffer, MovesDatabase movesDatabase, StateManager stateManager)
     {
         this.inputBuffer = inputBuffer;
         this.movesDatabase = movesDatabase;
