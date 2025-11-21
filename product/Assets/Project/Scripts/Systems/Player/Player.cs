@@ -20,6 +20,7 @@ public class Player : MonoBehaviour
 
     public void start()
     {
+        stateManager.AddState(PlayerStates.Idle);
         movesManager.LoadMoves();
         moveExecutor = new MoveExecutor(stateManager);
         moveSelector = new MoveSelector(inputBuffer, movesManager.GetMovesDatabase(),
