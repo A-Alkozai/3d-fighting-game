@@ -17,6 +17,7 @@ public class MoveSelector
 
     // Getters
     public IReadOnlyList<InputObject> ActiveInput => activeInput;
+    public bool IsStateMove => moveExecutor.IsStateMove;
     public MoveData ActiveMove => moveExecutor.CurrentMove;
     public MoveNode ActiveAttackNode => moveExecutor.ActiveAttackNode;
     public MoveNode ActiveMovementNode => moveExecutor.ActiveMovementNode;
@@ -37,6 +38,7 @@ public class MoveSelector
     {
         ReadBuffer();
         ReadHeldInputs();
+        FallbackMove();
     }
 
     public string DecideInputType(InputCommand input)
@@ -182,10 +184,35 @@ public class MoveSelector
         }
     }
 
-    public MoveNode GetNextNode(string inputType, InputCommand inputCommand, MoveNode currentNode=null)
+    public void FallbackMove()
+    {
+        if (ActiveMove == null || IsStateMove)
+        {
+            MoveData move = null;
+            if (stateManager.HasState(PlayerStates.Falling))
+            {
+                move = movesDatabase.GetMoveById("falling");
+            }
+            else if (stateManager.HasState(PlayerStates.Lying))
+            {
+                move = movesDatabase.GetMoveById("lying");
+            }
+            else if (stateManager.HasState(PlayerStates.Crouching))
+            {
+                move = movesDatabase.GetMoveById("crouching");
+            }
+            else if (stateManager.HasState(PlayerStates.Idle))
+            {
+                move = movesDatabase.GetMoveById("idle");
+            }
+            ExecuteFallback(move);
+        }
+    }
+
+    public MoveNode GetNextNode(string inputType, InputCommand inputCommand, MoveNode currentNode = null)
     {
         if (currentNode != null)
-        {   
+        {
             return movesDatabase.GetNextNode(inputCommand, currentNode);
         }
         if (inputType == "attack")
@@ -213,6 +240,13 @@ public class MoveSelector
         }
     }
 
+    public void ExecuteFallback(MoveData move)
+    {
+        if (ActiveMove != null && move != null && move.Id == ActiveMove.Id)
+            return;
+        moveExecutor.SetFallback(move);
+    }
+
     public MoveData GetExecutableMove(IReadOnlyList<MoveData> moves)
     {
         foreach (MoveData move in moves)
@@ -233,7 +267,7 @@ public class MoveSelector
                     break;
                 }
             }
-            
+
             if (canExecute)
                 return move;
         }
