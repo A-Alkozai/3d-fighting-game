@@ -6,6 +6,7 @@ public class Player : MonoBehaviour
     private MovesManager movesManager = new MovesManager();
     private StateManager stateManager = new StateManager();
     private MoveSelector moveSelector;
+    private MoveExecutor moveExecutor;
 
     public InputBuffer GetInputBuffer()
     {
@@ -20,13 +21,17 @@ public class Player : MonoBehaviour
     public void start()
     {
         movesManager.LoadMoves();
-        moveSelector = new MoveSelector(inputBuffer, movesManager.GetMovesDatabase(), stateManager);
+        moveExecutor = new MoveExecutor(stateManager);
+        moveSelector = new MoveSelector(inputBuffer, movesManager.GetMovesDatabase(),
+                                        stateManager, moveExecutor);
+
     }
 
     public void update()
     {
+        moveSelector.Update();
+        moveExecutor.Update();
         inputBuffer.UpdateFrameCounter();
         inputBuffer.RemoveExpiredInputs();
-        moveSelector.Update();
     }
 }
