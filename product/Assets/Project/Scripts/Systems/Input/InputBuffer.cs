@@ -4,16 +4,39 @@ using System.Collections.Generic;
 public class InputBuffer
 {
     private List<InputObject> inputBuffer = new List<InputObject>();
-    private int inputTTL = 8;
+    private int attackTTL = 8;
+    private int directionalTTL = 130;
+    private int directionalOverride = 20;
 
     public void AddInput(InputObject input)
     {
         inputBuffer.Add(input);
+        Debug.Log($"Added input: {input.GetInputCommand()}");
+
+        if (!input.IsDirectional())
+        {
+            OverrideDirectional(inputBuffer.Count-1);
+        }
+    }
+
+    public void Remove(InputObject input)
+    {
+        inputBuffer.Remove(input);
     }
 
     public void RemoveInputAt(int index)
     {
+        Debug.Log($"Removed input: {inputBuffer[index].GetInputCommand()}");
         inputBuffer.RemoveAt(index);
+    }
+
+    public void RemoveInputsByList(List<InputObject> expiredInputs)
+    {
+        foreach (InputObject expired in expiredInputs)
+        {
+            Debug.Log($"Removed input: {expired.GetInputCommand()}");
+            inputBuffer.Remove(expired);
+        }
     }
 
     public void RemoveExpiredInputs()
@@ -23,16 +46,40 @@ public class InputBuffer
         List<InputObject> expiredInputs = new List<InputObject>();
         foreach (InputObject input in inputBuffer)
         {
-            if (input.GetFrame().GetFrameNumber() >= inputTTL)
+            if (!input.IsDirectional() && input.GetFrame().GetFrameNumber() >= attackTTL)
+            {
+                expiredInputs.Add(input);
+                OverrideDirectional(inputBuffer.IndexOf(input));
+            }
+            else if (input.IsDirectional() && input.GetFrame().GetFrameNumber() >= directionalTTL)
             {
                 expiredInputs.Add(input);
             }
-            else { break; }
+            else if (!input.IsDirectional())
+            {
+                break;
+            }
         }
-        foreach (InputObject expired in expiredInputs)
+        RemoveInputsByList(expiredInputs);
+    }
+
+    public void OverrideDirectional(int index)
+    {
+        List<InputObject> expiredInputs = new List<InputObject>();
+
+        for (int i = index - 1; i >= 0; i--)
         {
-            inputBuffer.Remove(expired);
+            InputObject input = inputBuffer[i];
+            if (input.IsDirectional() && input.GetFrame().GetFrameNumber() > directionalOverride)
+            {
+                Debug.Log("Found Expired Directional HEHE");
+                expiredInputs.Add(input);
+            }
+            else if (!input.IsDirectional())
+                break;
         }
+
+        RemoveInputsByList(expiredInputs);
     }
 
     public void UpdateFrameCounter()
@@ -60,8 +107,8 @@ public class InputBuffer
         return inputBuffer.Count;
     }
 
-    public List<InputObject> GetInputBuffer()
+    public bool Contains(InputObject input)
     {
-        return inputBuffer;
+        return inputBuffer.Contains(input);
     }
 }
