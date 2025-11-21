@@ -27,9 +27,18 @@ public class InputManager : MonoBehaviour
 
             foreach (InputObject input in recievedInputs)
             {
-                if (input.IsHeld())
+                if (input.IsHeld() && input.GetFrame().GetFrameNumber() != -1)
                 {
                     inputPlayerPair.Value.GetMoveSelector().AddHeldInput(input);
+                }
+                else if (input.IsHeld())
+                {
+                    inputPlayerPair.Value.GetMoveSelector().UpdateHeldInputs();
+                }
+                else if (input.GetFrame().GetFrameNumber() == -1)
+                {
+                    inputPlayerPair.Value.GetInputBuffer().Remove(input);
+                    continue;
                 }
                 else
                 {
