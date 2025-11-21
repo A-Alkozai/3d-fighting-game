@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class LocalInputProvider : IInputProvider
 {
     private InputKeys inputKeys;
-    private int holdThreshold = 60;
+    private int holdThreshold = 50;
     private Dictionary<InputCommand, int> canHoldInput = new Dictionary<InputCommand, int>
         { {InputCommand.Up, 0}, {InputCommand.Down, 0},
           {InputCommand.Left, 0}, {InputCommand.Right, 0}};
@@ -32,38 +32,55 @@ public class LocalInputProvider : IInputProvider
 
             if (canHoldInput.ContainsKey(command))
             {
+                // Change name to held down variant
                 var name = command.ToString() + "Hold";
                 InputCommand holdName = Enum.Parse<InputCommand>(name);
 
-                if (!Keyboard.current[key].isPressed && canHoldInput[command] == 0) continue;
+                // Initial press
+                if (Keyboard.current[key].wasPressedThisFrame)
+                {
+                    InputObject heldInput = new InputObject(command, key); // Create tap object
+                    heldDownInputs[holdName] = heldInput; // Save object
+                    inputs.Add(heldInput); // Send object
+                    continue;
+                }
+
+                // Released input -> TAP
                 if (!Keyboard.current[key].isPressed && canHoldInput[command] < holdThreshold)
                 {
-                    inputs.Add(new InputObject(command, key));
-                    canHoldInput[command] = 0;
-                }
-                else if (!Keyboard.current[key].isPressed)
-                {
-                    canHoldInput[command] = 0;
-                    heldDownInputs[holdName].GetFrame().DisableFrame();
-                    inputs.Add(heldDownInputs[holdName]);
-                    heldDownInputs.Remove(holdName);
+                    canHoldInput[command] = 0; // Reset counter
+                    continue;
                 }
 
-                if (Keyboard.current[key].isPressed)
-                {
-                    canHoldInput[command]++;
-                }
-
+                // If threshold met -> convert tap to hold
                 if (canHoldInput[command] == holdThreshold)
                 {
-                    InputObject heldInput = new InputObject(holdName, key, true);
-                    heldDownInputs[holdName] = heldInput;
-                    inputs.Add(heldInput);
+                    heldDownInputs[holdName].GetFrame().DisableFrame(); // Disable initial tap object
+                    inputs.Add(heldDownInputs[holdName]); // Send disabled object -> signal to remove from buffer
+                    InputObject heldInput = new InputObject(holdName, key, true); // Create held input object
+                    heldDownInputs[holdName] = heldInput; // Save object locally
+                    inputs.Add(heldInput); // Send held object
                 }
-                
-                else if (canHoldInput[command] > holdThreshold)
+
+                // Release input -> HOLD
+                if (!Keyboard.current[key].isPressed)
                 {
-                    heldDownInputs[holdName].GetFrame().UpdateFrame();
+                    canHoldInput[command] = 0; // Reset counter
+                    heldDownInputs[holdName].GetFrame().DisableFrame(); // Disable hold object
+                    inputs.Add(heldDownInputs[holdName]); // Send disabled object -> signal to remove
+                    heldDownInputs.Remove(holdName); // Remove local hold object
+                    continue;
+                }
+
+                // If key held down
+                if (Keyboard.current[key].isPressed)
+                {
+                    // Currently HELD input
+                    if (canHoldInput[command] > holdThreshold)
+                    {
+                        heldDownInputs[holdName].GetFrame().UpdateFrame();
+                    }
+                    canHoldInput[command]++; // Increment counter
                 }
             }
             else if (Keyboard.current[key].wasPressedThisFrame)
