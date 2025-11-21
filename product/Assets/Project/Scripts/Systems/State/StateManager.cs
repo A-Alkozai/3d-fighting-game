@@ -25,8 +25,6 @@ public class StateManager
     {
         if (state == PlayerStates.Grounded) return;
         PlayerStates overrides = StateRules.GetStateRule(state).Overrides;
-
-        Debug.Log("Entered State: " + state);
         AddState(state);
         RemoveState(overrides);
     }
@@ -35,8 +33,6 @@ public class StateManager
     {
         if (state == PlayerStates.Grounded) return;
         PlayerStates nextState = StateRules.GetStateRule(state).Next;
-
-        Debug.Log("Exited State: " + state);
         RemoveState(state);
         if (nextState != 0)
         {
@@ -51,7 +47,6 @@ public class StateManager
     public void AddState(PlayerStates state)
     {
         playerStates |= state;
-        Debug.Log("Added State: " + state);
         if (state == PlayerStates.Idle || state == PlayerStates.Lying || state == PlayerStates.Crouching)
         {
             prevBaseState = state;
@@ -61,7 +56,6 @@ public class StateManager
     public void RemoveState(PlayerStates state)
     {
         playerStates &= ~state;
-        Debug.Log("Removed State: " + state);
     }
 
     public bool HasState(PlayerStates state)
