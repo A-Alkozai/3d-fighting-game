@@ -54,21 +54,40 @@ public class RecentInputsUI : MonoBehaviour
 
     public void AddRecentInput(InputObject newInput)
     {
-        if (!GetIsActive()) { return; }
+        if (!GetIsActive()) // If UI inactive
+            return;
 
         string inputKey = newInput.GetInputKey().ToString();
 
-        if (newInput.IsHeld() && newInput.GetFrame().GetFrameNumber() == -1)
+        if (newInput.IsHeld() && newInput.GetFrame().GetFrameNumber() <= 0)
         {
-            foreach (GameObject obj in displayedInputs)
+            GameObject latestMatch = null;
+
+            for (int i = 0; i < displayedInputs.Count; i++)
             {
-                TextMeshProUGUI text = obj.GetComponentInChildren<TextMeshProUGUI>();
-                Image[] imagesList = obj.GetComponentsInChildren<Image>(true);
-                Color keyColour = imagesList[2].color;
-                if (text != null && text.text == inputKey && keyColour == holdingInputColour)
+                GameObject currentKey = displayedInputs[i];
+                string text = currentKey.GetComponentInChildren<TextMeshProUGUI>().text;
+                if (text == inputKey)
+                {
+                    latestMatch = currentKey;
+                }
+            }
+
+            if (latestMatch == null)
+                return;
+
+            Image[] imagesList = latestMatch.GetComponentsInChildren<Image>(true);
+            Color keyColour = imagesList[2].color;
+
+            if (newInput.GetFrame().GetFrameNumber() == 0)
+            {
+                imagesList[2].color = holdingInputColour;
+            }
+            else if (newInput.GetFrame().GetFrameNumber() == -1)
+            {
+                if (keyColour == holdingInputColour)
                 {
                     imagesList[2].color = releasedInputColour;
-                    return;
                 }
             }
             return;
