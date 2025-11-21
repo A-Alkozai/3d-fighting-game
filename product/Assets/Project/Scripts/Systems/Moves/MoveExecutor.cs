@@ -5,6 +5,7 @@ public class MoveExecutor
 {
     private StateManager stateManager;
 
+    private bool isStateMove = false;
     private MoveData currentMove;
     private MoveNode activeAttackNode;
     private MoveNode activeMovementNode;
@@ -12,6 +13,7 @@ public class MoveExecutor
     private InputObject prevNeutralInput;
     private FrameCounter frameCounter;
 
+    public bool IsStateMove => isStateMove;
     public MoveData CurrentMove => currentMove;
     public MoveNode ActiveAttackNode => activeAttackNode;
     public MoveNode ActiveMovementNode => activeMovementNode;
@@ -32,10 +34,7 @@ public class MoveExecutor
     private void RunCurrentMove()
     {
         if (currentMove == null)
-        {
-            // Get a state-driven move;
             return;
-        }
 
         int frameNumber = frameCounter.GetFrameNumber();
 
@@ -98,6 +97,8 @@ public class MoveExecutor
 
     public void SetCurrentMove(MoveData newMove, MoveNode newNode, bool isAttackNode)
     {
+        if (isStateMove) isStateMove = false;
+        
         if (currentMove == null)
         {
             StartMove(newMove);
@@ -118,6 +119,12 @@ public class MoveExecutor
         }
     }
 
+    public void SetFallback(MoveData newMove)
+    {
+        StartMove(newMove);
+        isStateMove = true;
+    }
+
     public void SetPrevNeutralInput(InputObject input)
     {
         prevNeutralInput = input;
@@ -136,7 +143,6 @@ public class MoveExecutor
         currentMove = null;
         frameCounter = null;
         prevNeutralInput = null;
-        Debug.Log("Idle");
     }
 
     private void UpdateFrame()
