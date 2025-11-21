@@ -12,7 +12,7 @@ public class InputObject
         this.inputCommand = inputCommand;
         this.inputKey = inputKey;
         this.isHeld = isHeld;
-        this.frame = new FrameCounter();
+        frame = new FrameCounter();
     }
 
     public InputCommand GetInputCommand()
@@ -33,6 +33,17 @@ public class InputObject
     public bool IsHeld()
     {
         return isHeld;
+    }
+
+    public bool IsDirectional()
+    {
+        if (inputCommand == InputCommand.Left    || inputCommand == InputCommand.Right ||
+            inputCommand == InputCommand.Up      || inputCommand == InputCommand.Down ||
+            inputCommand == InputCommand.Forward || inputCommand == InputCommand.Backward)
+        {
+            return true;
+        }
+        return false;
     }
 
     public void ChangeInputCommand(InputCommand newInputCommand)
