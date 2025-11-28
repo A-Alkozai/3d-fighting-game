@@ -36,37 +36,44 @@ public class LocalInputProvider : IInputProvider
                 var name = command.ToString() + "Hold";
                 InputCommand holdName = Enum.Parse<InputCommand>(name);
 
+                // If key is not pressed
+                if (!Keyboard.current[key].isPressed && canHoldInput[command] == 0)
+                {
+                    continue;
+                }
+
                 // Initial press
                 if (Keyboard.current[key].wasPressedThisFrame)
                 {
-                    InputObject heldInput = new InputObject(command, key); // Create tap object
+                    InputObject heldInput = new InputObject(command, key, true); // Create pending input object
                     heldDownInputs[holdName] = heldInput; // Save object
                     inputs.Add(heldInput); // Send object
                     continue;
                 }
 
-                // Released input -> TAP
+                // Released TAP input
                 if (!Keyboard.current[key].isPressed && canHoldInput[command] < holdThreshold)
                 {
                     canHoldInput[command] = 0; // Reset counter
+                    heldDownInputs[holdName].SetIsHeld(false); // Change Pending input -> Tap
+                    heldDownInputs.Remove(holdName); // Remove local input object
                     continue;
                 }
 
-                // If threshold met -> convert tap to hold
+                // If threshold met -> convert Tap to Held
                 if (canHoldInput[command] == holdThreshold)
                 {
-                    heldDownInputs[holdName].GetFrame().DisableFrame(); // Disable initial tap object
-                    inputs.Add(heldDownInputs[holdName]); // Send disabled object -> signal to remove from buffer
-                    InputObject heldInput = new InputObject(holdName, key, true); // Create held input object
-                    heldDownInputs[holdName] = heldInput; // Save object locally
-                    inputs.Add(heldInput); // Send held object
+                    heldDownInputs[holdName].ChangeInputCommand(holdName); // Change tap command -> held command
+                    heldDownInputs[holdName].GetFrame().ResetFrame(); // Reset frame count
+                    heldDownInputs[holdName].SetIsHeld(true); // Change Pending input -> Held
+                    inputs.Add(heldDownInputs[holdName]); // Signal to remove from buffer + UI update
                 }
 
-                // Release input -> HOLD
+                // Release HELD input
                 if (!Keyboard.current[key].isPressed)
                 {
                     canHoldInput[command] = 0; // Reset counter
-                    heldDownInputs[holdName].GetFrame().DisableFrame(); // Disable hold object
+                    heldDownInputs[holdName].GetFrame().DisableFrame(); // Disable held input object
                     inputs.Add(heldDownInputs[holdName]); // Send disabled object -> signal to remove
                     heldDownInputs.Remove(holdName); // Remove local hold object
                     continue;
