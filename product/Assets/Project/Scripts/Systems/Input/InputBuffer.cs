@@ -15,12 +15,13 @@ public class InputBuffer
 
         if (!input.IsDirectional())
         {
-            OverrideDirectional(inputBuffer.Count-1);
+            OverrideDirectional(inputBuffer.Count - 1);
         }
     }
 
     public void Remove(InputObject input)
     {
+        Debug.Log($"Removed input: {input.GetInputCommand()}");
         inputBuffer.Remove(input);
     }
 
@@ -90,7 +91,6 @@ public class InputBuffer
         {
             input.GetFrame().UpdateFrame();
         }
-
     }
 
     public InputObject GetInputAt(int index)
