@@ -59,7 +59,7 @@ public class RecentInputsUI : MonoBehaviour
 
         string inputKey = newInput.GetInputKey().ToString();
 
-        if (newInput.IsHeld() && newInput.GetFrame().GetFrameNumber() <= 0)
+        if (!newInput.IsPending() && newInput.IsHeld() && newInput.GetFrame().GetFrameNumber() <= 0)
         {
             GameObject latestMatch = null;
 
@@ -100,11 +100,6 @@ public class RecentInputsUI : MonoBehaviour
 
         Image[] images = inputPrefabObj.GetComponentsInChildren<Image>(true);
         images[2].color = defaultInputColour;
-        if (newInput.IsHeld())
-        {
-            images[2].color = holdingInputColour;
-        }
-
         displayedInputs.Add(inputPrefabObj);
     }
 
