@@ -21,4 +21,9 @@ public class FrameCounter
     {
         frameNumber = -1;
     }
+
+    public void ResetFrame()
+    {
+        frameNumber = 0;
+    }
 }

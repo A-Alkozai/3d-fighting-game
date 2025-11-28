@@ -1,38 +1,36 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class InputInterpreter
+public class MoveSelector
 {
     // Objects
     private InputBuffer inputBuffer;
     private MovesDatabase movesDatabase;
     private StateManager stateManager;
+    private MoveExecutor moveExecutor;
     private FacingDirection facingDirection;
 
     // Variables
     private List<InputObject> activeInput = new List<InputObject>();
     private List<InputObject> heldInputs = new List<InputObject>();
     private List<InputObject> heldInputsWhileAttack = new List<InputObject>();
-    private FrameCounter frameCounter;
-    private InputObject prevNeutralInput;
-    // Current Move
-    private MoveData activeMove;
-    // Tapped Input
-    private MoveNode activeAttackNode;
-    // Held Input
-    private MoveNode activeMovementNode;
 
     // Getters
     public IReadOnlyList<InputObject> ActiveInput => activeInput;
-    public MoveData ActiveMove => activeMove;
-    public MoveNode ActiveAttackNode => activeAttackNode;
-    public MoveNode ActiveMovementNode => activeMovementNode;
+    public bool IsStateMove => moveExecutor.IsStateMove;
+    public MoveData ActiveMove => moveExecutor.CurrentMove;
+    public MoveNode ActiveAttackNode => moveExecutor.ActiveAttackNode;
+    public MoveNode ActiveMovementNode => moveExecutor.ActiveMovementNode;
+    public InputObject PrevNeutralInput => moveExecutor.PrevNeutralInput;
+    public FrameCounter FrameCounter => moveExecutor.FrameCounter;
 
-    public InputInterpreter(InputBuffer inputBuffer, MovesDatabase movesDatabase, StateManager stateManager)
+    public MoveSelector(InputBuffer inputBuffer, MovesDatabase movesDatabase,
+                        StateManager stateManager, MoveExecutor moveExecutor)
     {
         this.inputBuffer = inputBuffer;
         this.movesDatabase = movesDatabase;
         this.stateManager = stateManager;
+        this.moveExecutor = moveExecutor;
         facingDirection = stateManager.GetFacingDirection();
     }
 
@@ -40,13 +38,12 @@ public class InputInterpreter
     {
         ReadBuffer();
         ReadHeldInputs();
-        UpdateFrame();
-        UpdateHeldInputs();
+        FallbackMove();
     }
 
     public string DecideInputType(InputCommand input)
     {
-        if (activeAttackNode != null)
+        if (ActiveAttackNode != null)
         {
             return "attack";
         }
@@ -65,11 +62,19 @@ public class InputInterpreter
 
     public void ReadBuffer()
     {
+        if (inputBuffer.Count() == 0)
+            return;
+
         int index = 0;
+        int readInputs = 0;
 
         while (index < inputBuffer.Count())
         {
             InputObject input = inputBuffer.GetInputAt(index);
+
+            if (input.IsPending())
+                break;
+
             NormaliseInput(input);
             InputCommand inputCommand = input.GetInputCommand();
             MoveNode newInputNode;
@@ -77,25 +82,29 @@ public class InputInterpreter
 
             if (inputType == "neutral")
             {
-                prevNeutralInput = input;
+                moveExecutor.SetPrevNeutralInput(input);
                 index++;
                 continue;
             }
 
-            if (prevNeutralInput != null)
+            if (ExistsPrevNeutralInput() && PrevNeutralInput != null)
             {
-                newInputNode = GetNextNode(inputType, prevNeutralInput.GetInputCommand());
+                newInputNode = GetNextNode(inputType, PrevNeutralInput.GetInputCommand());
+                if (newInputNode == null)
+                {
+                    break;
+                }
                 newInputNode = GetNextNode(inputType, inputCommand, newInputNode);
             }
-            else newInputNode = GetNextNode(inputType, inputCommand);
-
-            if (newInputNode == null)
+            else
             {
-                index--;
-                break;
+                newInputNode = GetNextNode(inputType, inputCommand);
             }
 
-            MoveData executableMove = activeMove;
+            if (newInputNode == null)
+                break;
+
+            MoveData executableMove = ActiveMove;
 
             if (newInputNode.MoveDatas.Count > 0)
             {
@@ -103,33 +112,30 @@ public class InputInterpreter
                 executableMove = GetExecutableMove(movesList);
 
                 if (executableMove == null)
-                {
-                    index--;
                     break;
-                }
             }
 
             Execute(true, newInputNode, input, executableMove);
             index++;
+            readInputs++;
         }
-        RemoveBufferInputs(index - 1);
+        RemoveBufferInputs(readInputs - 1);
     }
 
     public void ReadHeldInputs()
     {
-        if (activeAttackNode != null)
+        if (ActiveAttackNode != null)
         {
             if (heldInputsWhileAttack.Count == 0) return;
 
             foreach (InputObject input in heldInputsWhileAttack)
             {
-                NormaliseInput(input);
                 InputCommand inputCommand = input.GetInputCommand();
-                MoveNode newInputNode = movesDatabase.GetNextNode(inputCommand, activeAttackNode);
+                MoveNode newInputNode = movesDatabase.GetNextNode(inputCommand, ActiveAttackNode);
 
                 if (newInputNode == null) return;
 
-                MoveData executableMove = activeMove;
+                MoveData executableMove = ActiveMove;
 
                 if (newInputNode.MoveDatas.Count > 0)
                 {
@@ -153,21 +159,20 @@ public class InputInterpreter
             while (index < heldInputs.Count)
             {
                 InputObject input = heldInputs[index];
-                NormaliseInput(input);
                 InputCommand inputCommand = input.GetInputCommand();
                 MoveNode newInputNode;
                 string inputType = DecideInputType(inputCommand);
 
-                if (prevNeutralInput != null)
+                if (ExistsPrevNeutralInput() && PrevNeutralInput != null)
                 {
-                    newInputNode = GetNextNode(inputType, prevNeutralInput.GetInputCommand());
+                    newInputNode = GetNextNode(inputType, PrevNeutralInput.GetInputCommand());
                     newInputNode = GetNextNode(inputType, inputCommand, newInputNode);
                 }
                 else newInputNode = GetNextNode(inputType, inputCommand);
 
                 if (newInputNode == null) break;
 
-                MoveData executableMove = activeMove;
+                MoveData executableMove = ActiveMove;
 
                 if (newInputNode.MoveDatas.Count > 0)
                 {
@@ -183,7 +188,32 @@ public class InputInterpreter
         }
     }
 
-    public MoveNode GetNextNode(string inputType, InputCommand inputCommand, MoveNode currentNode=null)
+    public void FallbackMove()
+    {
+        if (ActiveMove == null || IsStateMove)
+        {
+            MoveData move = null;
+            if (stateManager.HasState(PlayerStates.Falling))
+            {
+                move = movesDatabase.GetMoveById("falling");
+            }
+            else if (stateManager.HasState(PlayerStates.Lying))
+            {
+                move = movesDatabase.GetMoveById("lying");
+            }
+            else if (stateManager.HasState(PlayerStates.Crouching))
+            {
+                move = movesDatabase.GetMoveById("crouching");
+            }
+            else if (stateManager.HasState(PlayerStates.Idle))
+            {
+                move = movesDatabase.GetMoveById("idle");
+            }
+            ExecuteFallback(move);
+        }
+    }
+
+    public MoveNode GetNextNode(string inputType, InputCommand inputCommand, MoveNode currentNode = null)
     {
         if (currentNode != null)
         {
@@ -191,28 +221,34 @@ public class InputInterpreter
         }
         if (inputType == "attack")
         {
-            if (activeAttackNode == null)
+            if (ActiveAttackNode == null)
             {
                 return movesDatabase.GetNextNode(inputCommand, movesDatabase.RootAttackNode);
             }
-            return movesDatabase.GetNextNode(inputCommand, activeAttackNode);
+            return movesDatabase.GetNextNode(inputCommand, ActiveAttackNode);
         }
-        if (activeMovementNode == null)
+        if (ActiveMovementNode == null)
         {
             return movesDatabase.GetNextNode(inputCommand, movesDatabase.RootMovementNode);
         }
-        return movesDatabase.GetNextNode(inputCommand, activeMovementNode);
+        return movesDatabase.GetNextNode(inputCommand, ActiveMovementNode);
     }
 
     public void Execute(bool isAttackNode, MoveNode newNode, InputObject input, MoveData move)
     {
-        frameCounter = new FrameCounter();
-        activeMove = move;
+        moveExecutor.SetCurrentMove(move, newNode, isAttackNode);
         activeInput.Add(input);
-        prevNeutralInput = null;
+        if (move.IsLoop)
+        {
+            moveExecutor.SetLoopInput(input);
+        }
+    }
 
-        if (isAttackNode) { activeAttackNode = newNode; }
-        else { activeMovementNode = newNode; }
+    public void ExecuteFallback(MoveData move)
+    {
+        if (ActiveMove != null && move != null && move.Id == ActiveMove.Id)
+            return;
+        moveExecutor.SetFallback(move);
     }
 
     public MoveData GetExecutableMove(IReadOnlyList<MoveData> moves)
@@ -220,8 +256,8 @@ public class InputInterpreter
         foreach (MoveData move in moves)
         {
             bool canExecute = true;
-
-            if (frameCounter != null && frameCounter.GetFrameNumber() > move.BranchDelay)
+            if (FrameCounter != null && FrameCounter.GetFrameNumber() >= move.BranchDelay
+                                     && move.BranchDelay != 0)
             {
                 canExecute = false;
                 continue;
@@ -235,7 +271,9 @@ public class InputInterpreter
                     break;
                 }
             }
-            if (canExecute) return move;
+
+            if (canExecute)
+                return move;
         }
         return null;
     }
@@ -287,27 +325,27 @@ public class InputInterpreter
         }
     }
 
+    public bool ExistsPrevNeutralInput()
+    {
+        if (PrevNeutralInput != null && !inputBuffer.Contains(PrevNeutralInput))
+        {
+            moveExecutor.SetPrevNeutralInput(null);
+            return false;
+        }
+        return true;
+    }
+
     public void AddHeldInput(InputObject heldInput)
     {
-        if (activeAttackNode == null) { heldInputs.Add(heldInput); }
+        NormaliseInput(heldInput);
+        if (ActiveAttackNode == null) { heldInputs.Add(heldInput); }
         else { heldInputsWhileAttack.Add(heldInput); }
     }
 
     public void ClearActiveMove()
     {
-        activeAttackNode = null;
-        activeMovementNode = null;
-        activeMove = null;
+        moveExecutor.CancelMove();
         activeInput.Clear();
-        frameCounter = null;
-    }
-
-    public void UpdateFrame()
-    {
-        if (frameCounter != null)
-        {
-            frameCounter.UpdateFrame();
-        }
     }
 
     public void RemoveBufferInputs(int index)

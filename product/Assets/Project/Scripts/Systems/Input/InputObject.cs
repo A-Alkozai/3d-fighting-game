@@ -6,13 +6,14 @@ public class InputObject
     private Key inputKey;
     private FrameCounter frame;
     private bool isHeld;
+    private bool isPending;
 
-    public InputObject(InputCommand inputCommand, Key inputKey, bool isHeld = false)
+    public InputObject(InputCommand inputCommand, Key inputKey, bool isPending = false)
     {
         this.inputCommand = inputCommand;
         this.inputKey = inputKey;
-        this.isHeld = isHeld;
-        this.frame = new FrameCounter();
+        this.isPending = isPending;
+        frame = new FrameCounter();
     }
 
     public InputCommand GetInputCommand()
@@ -30,9 +31,36 @@ public class InputObject
         return frame;
     }
 
+    public void SetIsHeld(bool isHeld)
+    {
+        isPending = false;
+        this.isHeld = false;
+        
+        if (isHeld)
+        {
+            this.isHeld = true;
+        }
+    }
+
     public bool IsHeld()
     {
         return isHeld;
+    }
+
+    public bool IsPending()
+    {
+        return isPending;
+    }
+
+    public bool IsDirectional()
+    {
+        if (inputCommand == InputCommand.Left || inputCommand == InputCommand.Right ||
+            inputCommand == InputCommand.Up || inputCommand == InputCommand.Down ||
+            inputCommand == InputCommand.Forward || inputCommand == InputCommand.Backward)
+        {
+            return true;
+        }
+        return false;
     }
 
     public void ChangeInputCommand(InputCommand newInputCommand)

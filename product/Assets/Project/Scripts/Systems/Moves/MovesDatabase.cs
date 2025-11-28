@@ -35,10 +35,11 @@ public class MovesDatabase : BaseDatabase<MoveData>
             {
                 targetNode = CreateNodePath(rootMovementNode, inputs);
             }
-            else
+            else if (pair.Value.MoveType == "attack")
             {
                 targetNode = CreateNodePath(rootAttackNode, inputs);
             }
+            else continue;
             targetNode.AddMoveData(pair.Value);
         }
     }
@@ -69,13 +70,8 @@ public class MovesDatabase : BaseDatabase<MoveData>
         return null;
     }
 
-    public List<MoveData> GetMoveByIDs(List<string> ids)
+    public MoveData GetMoveById(string id)
     {
-        List<MoveData> moves = new List<MoveData>();
-        foreach (string id in ids)
-        {
-            moves.Add(dict[id]);
-        }
-        return moves;
+        return dict[id];
     }
 }
