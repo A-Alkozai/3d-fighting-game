@@ -299,3 +299,71 @@
         </td>
     </tr>
 </table>
+
+<table>
+    <tr>
+        <td>
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbDB4Z2RrYTB1OTZ5Ym1hdWZ0aXV6b2QyZzZtMmp2OGsxd3NhczRqbyZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/fqIOmNAvFOaiQO9GFy/giphy.gif" width="80" height="80">
+        </td>
+        <td>
+            <h2>
+                <br>
+                Week 8: &nbsp; 17/11/25 - 21/11/25
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </h2>
+        </td>
+    </tr>
+    <tr></tr>
+    <tr>
+        <td colspan="2">
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ➤ &nbsp;&nbsp; Finished Input Interpreter
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ◇ &nbsp; Inputs are matched to correct move
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ◇ &nbsp; Chained inputs are supported
+            <br>&nbsp;
+        </td>
+    </tr>
+    <tr></tr>
+    <tr>
+        <td colspan="2">
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ➤ &nbsp;&nbsp; Held down inputs are displayed in Recent Inputs UI
+            <br>&nbsp;
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExMTFha2dqczVua3RhbHZkZmhkNnI1MGIwdDVlbDhpYWQ3OThwMm9lNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/5QoE9aV8ZXnXcuh9aK/giphy.gif" width="200" height="120">
+            <br>&nbsp;
+        </td>
+    </tr>
+    <tr></tr>
+    <tr>
+        <td colspan="2">
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ➤ &nbsp;&nbsp; Hardware Limitation - Keyboard
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ◇ &nbsp; Differentiating between a single tap and a hold down produces significant delay
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ◇ &nbsp; Keys that can be held down will be delayed -> not good for frame sensitive game
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ◇ &nbsp; Cannot be avoided sadly -> will try work around it
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ◇ &nbsp; Single tap key = 15-30 frames of input
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ◇ &nbsp; Holding down key = 50+ frames of input
+            <br>&nbsp;
+        </td>
+    </tr>
+    <tr></tr>
+    <tr>
+        <td colspan="2">
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ➤ &nbsp;&nbsp; Due to increased workload from other modules, work on FYP will be slowed down
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ◇ &nbsp; Hoping to at least start the animation system
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ◇ &nbsp; May work on state UI
+            <br>&nbsp;
+        </td>
+    </tr>
+</table>
