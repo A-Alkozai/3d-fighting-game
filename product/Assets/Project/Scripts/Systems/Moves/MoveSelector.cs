@@ -71,6 +71,10 @@ public class MoveSelector
         while (index < inputBuffer.Count())
         {
             InputObject input = inputBuffer.GetInputAt(index);
+
+            if (input.IsPending())
+                break;
+
             NormaliseInput(input);
             InputCommand inputCommand = input.GetInputCommand();
             MoveNode newInputNode;
