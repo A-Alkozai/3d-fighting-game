@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Linq;
 using System.Collections.Generic;
 
 public class InputBuffer
@@ -50,7 +51,12 @@ public class InputBuffer
             if (!input.IsDirectional() && input.GetFrame().GetFrameNumber() >= attackTTL)
             {
                 expiredInputs.Add(input);
-                OverrideDirectional(inputBuffer.IndexOf(input));
+                List<InputObject> extraExpiredInputs = OverrideDirectional(inputBuffer.IndexOf(input), true);
+                if (extraExpiredInputs != null)
+                {
+                    expiredInputs.AddRange(extraExpiredInputs);
+                    expiredInputs = expiredInputs.Distinct().ToList();
+                }
             }
             else if (input.IsDirectional() && input.GetFrame().GetFrameNumber() >= directionalTTL)
             {
@@ -64,7 +70,7 @@ public class InputBuffer
         RemoveInputsByList(expiredInputs);
     }
 
-    public void OverrideDirectional(int index)
+    public List<InputObject> OverrideDirectional(int index, bool isReturn = false)
     {
         List<InputObject> expiredInputs = new List<InputObject>();
 
@@ -73,14 +79,17 @@ public class InputBuffer
             InputObject input = inputBuffer[i];
             if (input.IsDirectional() && input.GetFrame().GetFrameNumber() > directionalOverride)
             {
-                Debug.Log("Found Expired Directional HEHE");
                 expiredInputs.Add(input);
             }
             else if (!input.IsDirectional())
                 break;
         }
-
+        if (isReturn)
+        {
+            return expiredInputs;
+        }
         RemoveInputsByList(expiredInputs);
+        return null;
     }
 
     public void UpdateFrameCounter()
