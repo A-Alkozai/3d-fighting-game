@@ -4,6 +4,7 @@ using UnityEngine;
 public class MoveExecutor
 {
     private StateManager stateManager;
+    private AnimationManager animationManager;
 
     private bool isStateMove = false;
     private MoveData currentMove;
@@ -20,9 +21,10 @@ public class MoveExecutor
     public InputObject PrevNeutralInput => prevNeutralInput;
     public FrameCounter FrameCounter => frameCounter;
 
-    public MoveExecutor(StateManager stateManager)
+    public MoveExecutor(StateManager stateManager, AnimationManager animationManager)
     {
         this.stateManager = stateManager;
+        this.animationManager = animationManager;
     }
 
     public void Update()
@@ -37,6 +39,13 @@ public class MoveExecutor
             return;
 
         int frameNumber = frameCounter.GetFrameNumber();
+
+        // Debug.Log($"Current frame: {frameNumber}");
+
+        if (frameNumber == 0)
+        {
+            animationManager.PlayAnimation(currentMove.Id);
+        }
 
         if (!currentMove.IsLoop && frameNumber >= currentMove.TotalFrames)
         {
