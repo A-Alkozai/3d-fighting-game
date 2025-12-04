@@ -11,8 +11,14 @@ public class GameManager : MonoBehaviour
     private IInputProvider inputProvider2;
     private InputKeys inputKeys;
 
+    private int gameFPS = 120;
+    private float logicTimer = 0f;
+    private float logicDeltaTime = 1f / 120f;
+
+
     void Start()
     {
+        Application.targetFrameRate = gameFPS;
         inputKeys = new InputKeys();
         inputProvider1 = new LocalInputProvider(inputKeys);
         inputManager.AddInputToPlayerMap(inputProvider1, player1);
@@ -23,7 +29,15 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         inputManager.update();
-        player1.update();
+
+        while (logicTimer >= logicDeltaTime)
+        {
+            logicTimer -= logicDeltaTime;
+            player1.update();
+        }
+
         uiManager.update();
+
+        logicTimer += Time.deltaTime; 
     }
 }

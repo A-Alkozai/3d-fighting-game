@@ -2,9 +2,11 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    [SerializeField] MoveAnimator moveAnimator;
     private InputBuffer inputBuffer = new InputBuffer();
     private MovesManager movesManager = new MovesManager();
     private StateManager stateManager = new StateManager();
+    private AnimationManager animationManager;
     private MoveSelector moveSelector;
     private MoveExecutor moveExecutor;
 
@@ -20,12 +22,14 @@ public class Player : MonoBehaviour
 
     public void start()
     {
-        stateManager.AddState(PlayerStates.Idle);
-        movesManager.LoadMoves();
-        moveExecutor = new MoveExecutor(stateManager);
+        animationManager = new AnimationManager(moveAnimator);
+        moveExecutor = new MoveExecutor(stateManager, animationManager);
         moveSelector = new MoveSelector(inputBuffer, movesManager.GetMovesDatabase(),
                                         stateManager, moveExecutor);
-
+                                        
+        stateManager.AddState(PlayerStates.Idle);
+        movesManager.LoadMoves();
+        animationManager.LoadAnimations();
     }
 
     public void update()
