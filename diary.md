@@ -108,6 +108,8 @@
             ◇ &nbsp; Combo Management - Creating and matching input --> combo
             <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             ◇ &nbsp; Player - How a player will manage their own logic
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ➤ &nbsp;&nbsp; UML design is based off my research I'm currently doing
             <br>&nbsp;
         </td>
     </tr>
@@ -143,6 +145,8 @@
         <td colspan="2">
             <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             ➤ &nbsp;&nbsp; Finished my UML diagram for the essential systems
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ➤ &nbsp;&nbsp; Preparing to start my input system
             <br>&nbsp;
         </td>
     </tr>
@@ -385,9 +389,11 @@
     <tr>
         <td colspan="2">
             <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            ➤ &nbsp;&nbsp; Planned Animation System
+            ➤ &nbsp;&nbsp; Planned Animation System through research
             <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             ◇ &nbsp; Have just started implementation
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ◇ &nbsp; Using Mixamo as my source for animations
             <br>&nbsp;
         </td>
     </tr>
@@ -396,6 +402,8 @@
         <td colspan="2">
             <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             ➤ &nbsp;&nbsp; Realised my game FPS is not limited and is running at 300+ fps
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ➤ &nbsp;&nbsp; Negatively affects performance and causes inconsistency
             <br>&nbsp;
         </td>
     </tr>
@@ -418,7 +426,7 @@
     <tr>
         <td colspan="2">
             <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            ➤ &nbsp;&nbsp; Completed Animation System
+            ➤ &nbsp;&nbsp; Completed the Animation System
             <br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExa2x1em1rZnV6MHBjNWg5d3I5Mm5qaHUzZ252NnB0MTh5dDVlOHJtZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/60FE3znIAmTeU9JoqQ/giphy.gif" width="200" height="120">
             <br>&nbsp;
@@ -442,3 +450,29 @@
     </tr>
 </table>
 
+<table>
+    <tr>
+        <td>
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbDB4Z2RrYTB1OTZ5Ym1hdWZ0aXV6b2QyZzZtMmp2OGsxd3NhczRqbyZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/fqIOmNAvFOaiQO9GFy/giphy.gif" width="80" height="80">
+        </td>
+        <td>
+            <h2>
+                <br>
+                Week 11: &nbsp; 08/12/25 - 12/12/25
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </h2>
+        </td>
+    </tr>
+    <tr></tr>
+    <tr>
+        <td colspan="2">
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ➤ &nbsp;&nbsp; Completed the retrospective section of report
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ➤ &nbsp;&nbsp; Working on my interim report now
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            ➤ &nbsp;&nbsp; Uploaded my demo video
+            <br>&nbsp;
+        </td>
+    </tr>
+</table>
