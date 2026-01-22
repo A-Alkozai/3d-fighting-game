@@ -9,7 +9,7 @@ public class AnimationData : IIdentifiable
     [SerializeField] private string clip;
     [SerializeField] private bool isLoop;
     [SerializeField] private float speed;
-    [SerializeField] private int totalFrames;
+    private int totalFrames;
 
     public string Id => id;
     public string Clip => clip;
@@ -17,4 +17,12 @@ public class AnimationData : IIdentifiable
     public float Speed => speed;
     public int TotalFrames => totalFrames;
 
+    public void InitialiseTotalFrames(MoveAnimator moveAnimator)
+    {
+        float clipDuration = moveAnimator.GetClipLength(clip);
+        totalFrames = (int) Math.Ceiling(60f * clipDuration / speed);
+        Debug.Log(id);
+        Debug.Log(totalFrames);
+    }
+        
 }
