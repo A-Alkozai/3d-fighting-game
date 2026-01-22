@@ -6,6 +6,7 @@ public class MovesDatabase : BaseDatabase<MoveData>
 {
     private MoveNode rootAttackNode = new MoveNode();
     private MoveNode rootMovementNode = new MoveNode();
+    private AnimationDatabase animationDatabase;
 
     public MoveNode RootAttackNode => rootAttackNode;
     public MoveNode RootMovementNode => rootMovementNode;
@@ -15,12 +16,18 @@ public class MovesDatabase : BaseDatabase<MoveData>
         filePath = "Assets/Project/Data/Characters/Player1/moves.json";
     }
 
+    public void AddAnimationDatabase(AnimationDatabase animationDatabase)
+    {
+        this.animationDatabase = animationDatabase;
+    }
+
     public override void ReadJson()
     {
         base.ReadJson();
         foreach (var pair in dict)
         {
             pair.Value.InitialiseObjects();
+            pair.Value.LoadTotalFrames(animationDatabase.GetAnimationData(pair.Key));
         }
         InitialiseTrees();
     }
