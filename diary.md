@@ -476,3 +476,10 @@
         </td>
     </tr>
 </table>
+
+Term 2 FYP Diary
+
+Week 1:   19/01/26 - 23/01/26
+      ➤    Refactored the animation timing system to remove hardcoded data.
+             ◇   Problem: Logic and view were desyncing because hardcoded JSON frame counts didn't perfectly match actual Unity animation clip lengths.
+             ◇   Solution: Created an initialization step that dynamically reads the .anim clip length at runtime and calculates exact logic frames, ensuring perfect deterministic sync.
