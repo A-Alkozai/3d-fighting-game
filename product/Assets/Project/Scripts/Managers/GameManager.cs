@@ -11,9 +11,9 @@ public class GameManager : MonoBehaviour
     private IInputProvider inputProvider2;
     private InputKeys inputKeys;
 
-    private int gameFPS = 120;
+    private int gameFPS = 60;
     private float logicTimer = 0f;
-    private float logicDeltaTime = 1f / 120f;
+    private float logicDeltaTime = 1f / 60f;
 
 
     void Start()

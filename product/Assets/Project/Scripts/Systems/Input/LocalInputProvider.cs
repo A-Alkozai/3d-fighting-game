@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class LocalInputProvider : IInputProvider
 {
     private InputKeys inputKeys;
-    private int holdThreshold = 50;
+    private int holdThreshold = 10;
     private Dictionary<InputCommand, int> canHoldInput = new Dictionary<InputCommand, int>
         { {InputCommand.Up, 0}, {InputCommand.Down, 0},
           {InputCommand.Left, 0}, {InputCommand.Right, 0}};

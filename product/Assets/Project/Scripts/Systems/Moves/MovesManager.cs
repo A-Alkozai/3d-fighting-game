@@ -2,8 +2,9 @@ public class MovesManager
 {
     private MovesDatabase movesDatabase = new MovesDatabase();
 
-    public void LoadMoves()
+    public void LoadMoves(AnimationDatabase animationDatabase)
     {
+        movesDatabase.AddAnimationDatabase(animationDatabase);
         movesDatabase.ReadJson();
     }
 

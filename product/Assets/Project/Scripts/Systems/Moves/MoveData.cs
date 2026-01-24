@@ -10,12 +10,12 @@ public class MoveData : IIdentifiable
     [SerializeField] private string description;
     [SerializeField] private string moveType;
     [SerializeField] private bool isLoop;
-    [SerializeField] private int totalFrames;
     [SerializeField] private int inputDelay;
     [SerializeField] private int branchDelay;
     [SerializeField] private List<string> inputSequence;
     [SerializeField] private List<string> requiredStates;
 
+    private int totalFrames;
     private List<InputCommand> inputSequenceObj = new List<InputCommand>();
     private List<PlayerStates> requiredStatesObj = new List<PlayerStates>();
 
@@ -34,6 +34,11 @@ public class MoveData : IIdentifiable
     {
         InitialiseInputs();
         InitialiseStates();
+    }
+
+    public void LoadTotalFrames(AnimationData animationData)
+    {
+        totalFrames = animationData.TotalFrames;
     }
 
     private void InitialiseInputs()

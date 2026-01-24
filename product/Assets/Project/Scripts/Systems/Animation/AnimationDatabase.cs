@@ -10,6 +10,14 @@ public class AnimationDatabase : BaseDatabase<AnimationData>
         filePath = "Assets/Project/Data/Characters/Player1/animations.json";
     }
 
+    public void AddTotalFrames(MoveAnimator moveAnimator)
+    {
+        foreach (var pair in dict)
+        {
+            pair.Value.InitialiseTotalFrames(moveAnimator);
+        }
+    }
+
     public AnimationData GetAnimationData(string id)
     {
         return dict[id];

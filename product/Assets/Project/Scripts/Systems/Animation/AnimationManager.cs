@@ -13,6 +13,7 @@ public class AnimationManager
     public void LoadAnimations()
     {
         animationDatabase.ReadJson();
+        animationDatabase.AddTotalFrames(moveAnimator);
     }
 
     public AnimationDatabase GetAnimationDatabase()
@@ -23,6 +24,6 @@ public class AnimationManager
     public void PlayAnimation(string animationId)
     {
         AnimationData data = animationDatabase.GetAnimationData(animationId);
-        moveAnimator.PlayAnimation(data.Clip);
+        moveAnimator.PlayAnimation(data.Clip, data.Speed);
     }
 }

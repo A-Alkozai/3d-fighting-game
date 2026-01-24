@@ -28,8 +28,8 @@ public class Player : MonoBehaviour
                                         stateManager, moveExecutor);
                                         
         stateManager.AddState(PlayerStates.Idle);
-        movesManager.LoadMoves();
         animationManager.LoadAnimations();
+        movesManager.LoadMoves(animationManager.GetAnimationDatabase());
     }
 
     public void update()
