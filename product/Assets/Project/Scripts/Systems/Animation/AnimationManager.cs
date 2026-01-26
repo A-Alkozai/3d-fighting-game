@@ -3,17 +3,17 @@ using UnityEngine;
 public class AnimationManager
 {
     private AnimationDatabase animationDatabase = new AnimationDatabase();
-    private MoveAnimator moveAnimator;
+    private AnimationExecutor animationExecutor;
 
-    public AnimationManager(MoveAnimator moveAnimator)
+    public AnimationManager(AnimationExecutor animationExecutor)
     {
-        this.moveAnimator = moveAnimator;
+        this.animationExecutor = animationExecutor;
     }
 
     public void LoadAnimations()
     {
         animationDatabase.ReadJson();
-        animationDatabase.AddTotalFrames(moveAnimator);
+        animationDatabase.AddTotalFrames(animationExecutor);
     }
 
     public AnimationDatabase GetAnimationDatabase()
@@ -24,6 +24,6 @@ public class AnimationManager
     public void PlayAnimation(string animationId)
     {
         AnimationData data = animationDatabase.GetAnimationData(animationId);
-        moveAnimator.PlayAnimation(data.Clip, data.Speed);
+        animationExecutor.PlayAnimation(data.Clip, data.Speed);
     }
 }

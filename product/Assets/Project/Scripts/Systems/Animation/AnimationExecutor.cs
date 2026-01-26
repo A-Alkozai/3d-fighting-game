@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MoveAnimator : MonoBehaviour
+public class AnimationExecutor : MonoBehaviour
 {
     private Animator animator;
     private AnimatorOverrideController overrideController;
