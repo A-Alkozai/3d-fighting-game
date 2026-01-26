@@ -17,9 +17,9 @@ public class AnimationData : IIdentifiable
     public float Speed => speed;
     public int TotalFrames => totalFrames;
 
-    public void InitialiseTotalFrames(MoveAnimator moveAnimator)
+    public void InitialiseTotalFrames(AnimationExecutor animationExecutor)
     {
-        float clipDuration = moveAnimator.GetClipLength(clip);
+        float clipDuration = animationExecutor.GetClipLength(clip);
         totalFrames = (int) Math.Ceiling(60f * clipDuration / speed);
         Debug.Log(id);
         Debug.Log(totalFrames);

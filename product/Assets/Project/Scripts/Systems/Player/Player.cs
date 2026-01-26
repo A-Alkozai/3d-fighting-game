@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] MoveAnimator moveAnimator;
+    [SerializeField] AnimationExecutor animationExecutor;
     private InputBuffer inputBuffer = new InputBuffer();
     private MovesManager movesManager = new MovesManager();
     private StateManager stateManager = new StateManager();
@@ -22,7 +22,7 @@ public class Player : MonoBehaviour
 
     public void start()
     {
-        animationManager = new AnimationManager(moveAnimator);
+        animationManager = new AnimationManager(animationExecutor);
         moveExecutor = new MoveExecutor(stateManager, animationManager);
         moveSelector = new MoveSelector(inputBuffer, movesManager.GetMovesDatabase(),
                                         stateManager, moveExecutor);

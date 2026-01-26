@@ -10,11 +10,11 @@ public class AnimationDatabase : BaseDatabase<AnimationData>
         filePath = "Assets/Project/Data/Characters/Player1/animations.json";
     }
 
-    public void AddTotalFrames(MoveAnimator moveAnimator)
+    public void AddTotalFrames(AnimationExecutor animationExecutor)
     {
         foreach (var pair in dict)
         {
-            pair.Value.InitialiseTotalFrames(moveAnimator);
+            pair.Value.InitialiseTotalFrames(animationExecutor);
         }
     }
 
