@@ -483,3 +483,12 @@ Week 1:   19/01/26 - 23/01/26
       ➤    Refactored the animation timing system to remove hardcoded data.
              ◇   Problem: Logic and view were desyncing because hardcoded JSON frame counts didn't perfectly match actual Unity animation clip lengths.
              ◇   Solution: Created an initialization step that dynamically reads the .anim clip length at runtime and calculates exact logic frames, ensuring perfect deterministic sync.
+
+Week 2:   26/01/26 - 30/01/26
+      ➤    Designed and integrated the core Movement System.
+             ◇   Implemented MovementData schemas and a dictionary database to store movement speeds and properties.
+      ➤    Hooked the movement executor into the Player and Moves system to apply physical displacement alongside animation playback.
+
+
+
+
