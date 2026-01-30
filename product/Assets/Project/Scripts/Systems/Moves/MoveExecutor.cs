@@ -5,6 +5,7 @@ public class MoveExecutor
 {
     private StateManager stateManager;
     private AnimationManager animationManager;
+    private MovementManager movementManager;
 
     private bool isStateMove = false;
     private MoveData currentMove;
@@ -21,10 +22,12 @@ public class MoveExecutor
     public InputObject PrevNeutralInput => prevNeutralInput;
     public FrameCounter FrameCounter => frameCounter;
 
-    public MoveExecutor(StateManager stateManager, AnimationManager animationManager)
+    public MoveExecutor(StateManager stateManager, AnimationManager animationManager,
+                        MovementManager movementManager)
     {
         this.stateManager = stateManager;
         this.animationManager = animationManager;
+        this.movementManager = movementManager;
     }
 
     public void Update()
@@ -45,6 +48,7 @@ public class MoveExecutor
         if (frameNumber == 0)
         {
             animationManager.PlayAnimation(currentMove.Id);
+            movementManager.SetMovement(currentMove.Id);
         }
 
         if (!currentMove.IsLoop && frameNumber >= currentMove.TotalFrames)
@@ -147,6 +151,7 @@ public class MoveExecutor
     public void CancelMove()
     {
         DeactivateStates(currentMove.RequiredStates);
+        movementManager.CancelMovement();
         activeAttackNode = null;
         activeMovementNode = null;
         currentMove = null;
