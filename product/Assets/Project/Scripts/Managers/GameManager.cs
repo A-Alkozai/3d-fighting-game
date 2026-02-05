@@ -4,11 +4,13 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] UIManager uiManager;
     [SerializeField] InputManager inputManager;
+    [SerializeField] Camera camera;
     [SerializeField] Player player1;
     [SerializeField] Player player2;
 
     private IInputProvider inputProvider1;
     private IInputProvider inputProvider2;
+    private CameraManager cameraManager;
     private InputKeys inputKeys;
 
     private int gameFPS = 60;
@@ -24,6 +26,8 @@ public class GameManager : MonoBehaviour
         inputManager.AddInputToPlayerMap(inputProvider1, player1);
         inputManager.AddRecentInputsUI(uiManager.GetRecentInputsUI());
         player1.start();
+        cameraManager = new CameraManager(camera, player1.transform, player2.transform);
+        cameraManager.SetMode(new CombatCameraMode());
     }
 
     void Update()
@@ -37,6 +41,7 @@ public class GameManager : MonoBehaviour
         }
 
         uiManager.update();
+        cameraManager.Update();
 
         logicTimer += Time.deltaTime; 
     }
