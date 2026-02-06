@@ -489,6 +489,9 @@ Week 2:   26/01/26 - 30/01/26
              ◇   Implemented MovementData schemas and a dictionary database to store movement speeds and properties.
       ➤    Hooked the movement executor into the Player and Moves system to apply physical displacement alongside animation playback.
 
-
+Week 3:   02/02/26 - 06/02/26
+      ➤    Developed a modular Camera System for combat.
+             ◇   Created a CameraMode interface to allow seamless switching between different camera behaviors.
+      ➤    Implemented the default combat camera with adjustable positioning, ensuring both players remain in view regardless of distance.
 
 
