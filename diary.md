@@ -494,4 +494,9 @@ Week 3:   02/02/26 - 06/02/26
              ◇   Created a CameraMode interface to allow seamless switching between different camera behaviors.
       ➤    Implemented the default combat camera with adjustable positioning, ensuring both players remain in view regardless of distance.
 
-
+Week 4:   09/02/26 - 13/02/26
+      ➤    Began implementing the Collision System (Hitboxes and Pushboxes).
+             ◇   Created foundational structures: Collision databases, JSON data holders, and the central CollisionManager.
+      ➤    Built BodyCollider classes to manage physical spacing.
+             ◇   Problem: Players were able to clip into each other during specific animations.
+             ◇   Solution: Implemented body pushback logic to force correct physical spacing dynamically.
