@@ -11,12 +11,12 @@ public class GameManager : MonoBehaviour
     private IInputProvider inputProvider1;
     private IInputProvider inputProvider2;
     private CameraManager cameraManager;
+    private CollisionManager collisionManager;
     private InputKeys inputKeys;
 
     private int gameFPS = 60;
     private float logicTimer = 0f;
     private float logicDeltaTime = 1f / 60f;
-
 
     void Start()
     {
@@ -26,8 +26,10 @@ public class GameManager : MonoBehaviour
         inputManager.AddInputToPlayerMap(inputProvider1, player1);
         inputManager.AddRecentInputsUI(uiManager.GetRecentInputsUI());
         player1.start();
+        player2.start();
         cameraManager = new CameraManager(camera, player1.transform, player2.transform);
         cameraManager.SetMode(new CombatCameraMode());
+        collisionManager = new CollisionManager(player1, player2);
     }
 
     void Update()
@@ -38,11 +40,11 @@ public class GameManager : MonoBehaviour
         {
             logicTimer -= logicDeltaTime;
             player1.update();
+            collisionManager.Update();
         }
 
         uiManager.update();
         cameraManager.Update();
-
-        logicTimer += Time.deltaTime; 
+        logicTimer += Time.deltaTime;
     }
 }
