@@ -500,3 +500,8 @@ Week 4:   09/02/26 - 13/02/26
       ➤    Built BodyCollider classes to manage physical spacing.
              ◇   Problem: Players were able to clip into each other during specific animations.
              ◇   Solution: Implemented body pushback logic to force correct physical spacing dynamically.
+
+Week 5:   16/02/26 - 20/02/26
+      ➤    Finalized the Collision System by separating logic into HitCollisionExecutor and PushCollisionExecutor.
+             ◇   Problem: Ensuring overlap events don't trigger multiple times in a single frame.
+             ◇   Solution: Used ICollidable interfaces and strict manager loop ordering to process overlaps precisely once per logic tick.
