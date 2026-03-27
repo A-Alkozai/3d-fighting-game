@@ -505,3 +505,11 @@ Week 5:   16/02/26 - 20/02/26
       ➤    Finalized the Collision System by separating logic into HitCollisionExecutor and PushCollisionExecutor.
              ◇   Problem: Ensuring overlap events don't trigger multiple times in a single frame.
              ◇   Solution: Used ICollidable interfaces and strict manager loop ordering to process overlaps precisely once per logic tick.
+
+Week 6:   23/03/26 - 27/03/26
+      ➤    Developed the Combat System architecture.
+             ◇   Created core enums (AttackHeight, HitEffect, HitOutcome) to standardize fight logic.
+      ➤    Mapped specific hitboxes to attack properties in CombatData.
+             ◇   Built the CombatExecutor to calculate block stuns, hit stuns, and damage payloads upon a successful intersection.
+
+
