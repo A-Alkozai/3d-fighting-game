@@ -40,14 +40,21 @@ public class StateManager
         }
         else
         {
-            AddState(prevBaseState);
+            AddState(prevBaseState);  // was: else if (IsBaseState(state))
         }
+    }
+
+    private bool IsBaseState(PlayerStates state)
+    {
+        return state == PlayerStates.Idle 
+            || state == PlayerStates.Crouching 
+            || state == PlayerStates.Lying;
     }
 
     public void AddState(PlayerStates state)
     {
         playerStates |= state;
-        if (state == PlayerStates.Idle || state == PlayerStates.Lying || state == PlayerStates.Crouching)
+        if (state == PlayerStates.Idle || state == PlayerStates.Lying)
         {
             prevBaseState = state;
         }

@@ -96,6 +96,7 @@ public class MoveExecutor
     {
         foreach (PlayerStates state in states)
         {
+            Debug.Log($"[MoveExecutor] Activating state: {state}");
             stateManager.EnterState(state);
         }
     }

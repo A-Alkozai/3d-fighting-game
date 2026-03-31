@@ -22,30 +22,30 @@ public struct StateRules
         {
             Blocks = DisableMovement | InAir | PlayerStates.Lying | PlayerStates.Crouching,
             Overrides = PlayerStates.Idle | PlayerStates.Walking | PlayerStates.Running | PlayerStates.RunMomentum
-                                          | PlayerStates.Sidestepping,
+                                        | PlayerStates.Sidestepping | PlayerStates.Guarding,
         },
         [PlayerStates.Running] = new StateRules
         {
             Blocks = DisableMovement | InAir | CannotWalk,
-            Overrides = PlayerStates.Idle | PlayerStates.Walking
+            Overrides = PlayerStates.Idle | PlayerStates.Walking | PlayerStates.Guarding,
         },
         [PlayerStates.Jumping] = new StateRules
         {
             Blocks = DisableMovement | InAir | CannotWalk,
-            Overrides = PlayerStates.Idle | PlayerStates.Walking,
+            Overrides = PlayerStates.Idle | PlayerStates.Walking | PlayerStates.Guarding,
             Next = PlayerStates.Falling
         },
         [PlayerStates.Sidestepping] = new StateRules
         {
-            Blocks = DisableMovement | InAir | PlayerStates.Lying | PlayerStates.Jumping | PlayerStates.Crouching,
-            Overrides = PlayerStates.Idle | PlayerStates.Walking | PlayerStates.Running | PlayerStates.RunMomentum
-                                          | PlayerStates.Dashing
+            Blocks = DisableMovement | InAir | PlayerStates.Lying | PlayerStates.Jumping
+                    | PlayerStates.Crouching | PlayerStates.Walking | PlayerStates.Running
+                    | PlayerStates.RunMomentum | PlayerStates.Rising,
+            Overrides = PlayerStates.Idle | PlayerStates.Guarding,
         },
         [PlayerStates.Rolling] = new StateRules
         {
             Blocks = DisableMovement | InAir | PlayerStates.Rising,
         },
-
 
         [PlayerStates.Crouching] = new StateRules
         {
@@ -63,12 +63,11 @@ public struct StateRules
             Next = PlayerStates.Idle,
         },
 
-
         [PlayerStates.Attacking] = new StateRules
         {
             Blocks = PlayerStates.Stunned | PlayerStates.Recovery,
             Overrides = PlayerStates.Idle | PlayerStates.Walking | PlayerStates.Running | PlayerStates.RunMomentum
-                                          | PlayerStates.Dashing | PlayerStates.Rising | PlayerStates.Guarding,
+                                        | PlayerStates.Dashing | PlayerStates.Rising | PlayerStates.Guarding,
         },
         [PlayerStates.Guarding] = new StateRules
         {
@@ -77,8 +76,8 @@ public struct StateRules
         [PlayerStates.Stunned] = new StateRules
         {
             Overrides = PlayerStates.Walking | PlayerStates.Running | PlayerStates.RunMomentum | PlayerStates.Sidestepping
-                                             | PlayerStates.Dashing | PlayerStates.Rising | PlayerStates.Jumping
-                                             | PlayerStates.Rolling | PlayerStates.Recovery,
+                                            | PlayerStates.Dashing | PlayerStates.Rising | PlayerStates.Jumping
+                                            | PlayerStates.Rolling | PlayerStates.Recovery | PlayerStates.Guarding,
         },
     };
 
