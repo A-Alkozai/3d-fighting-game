@@ -10,4 +10,8 @@ public interface ICollidable
     BodyCollider GetBodyCollider();
     Transform GetTransform();
     void SetMovementBlocked(bool blocked);
+    CombatData GetCombatData();
+    bool HasState(PlayerStates state);
+    void ReceiveCombatResult(CombatResult result);
+    string GetCurrentMoveId();
 }
