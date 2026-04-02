@@ -1,11 +1,10 @@
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
-using System.Collections.Generic;
 
 public class UIManager : MonoBehaviour
 {
     [SerializeField] private RecentInputsUI recentInputsUI;
+    [SerializeField] private HealthBarUI healthBarP1;
+    [SerializeField] private HealthBarUI healthBarP2;
 
     private bool isActiveRecentInputsUI = true;
 
@@ -22,5 +21,15 @@ public class UIManager : MonoBehaviour
     public RecentInputsUI GetRecentInputsUI()
     {
         return recentInputsUI;
+    }
+
+    public HealthBarUI GetHealthBarP1()
+    {
+        return healthBarP1;
+    }
+
+    public HealthBarUI GetHealthBarP2()
+    {
+        return healthBarP2;
     }
 }
