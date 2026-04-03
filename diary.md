@@ -512,4 +512,11 @@ Week 6:   23/03/26 - 27/03/26
       ➤    Mapped specific hitboxes to attack properties in CombatData.
              ◇   Built the CombatExecutor to calculate block stuns, hit stuns, and damage payloads upon a successful intersection.
 
+Week 7:   30/03/26 - 03/04/26
+      ➤    Developed the Health System and linked it to the UI (HealthBarUI).
+      ➤    Integrated Health with Combat so valid attacks correctly deduct HP.
+             ◇   Problem: Found bugs in state transitions and defensive guarding during integration testing.
+             ◇   Solution: Refactored state rules and attack height resolution (High/Mid/Low) so standing and crouching blocks function accurately.
+
+
 
