@@ -23,9 +23,16 @@ public class CombatExecutor
     private HitOutcome Evaluate(CombatData combatData, ICollidable defender)
     {
         AttackHeight height = combatData.AttackHeight;
+        bool isCrouching = defender.HasState(PlayerStates.Crouching);
+        bool isGuarding = defender.HasState(PlayerStates.Guarding);
+        bool isIdle = defender.HasState(PlayerStates.Idle);
+        bool isAttacking = defender.HasState(PlayerStates.Attacking);
 
-        // High attacks whiff over crouching opponents
-        if (height == AttackHeight.High && defender.HasState(PlayerStates.Crouching))
+        Debug.Log($"[CombatExecutor] Evaluate: height={height}, idle={isIdle}, " +
+                $"crouching={isCrouching}, guarding={isGuarding}, attacking={isAttacking}");
+
+        // High attacks whiff over crouching opponents (regardless of guard)
+        if (height == AttackHeight.High && isCrouching)
         {
             return HitOutcome.Whiff;
         }
@@ -33,12 +40,11 @@ public class CombatExecutor
         // Block checks
         if (defender.HasState(PlayerStates.Guarding))
         {
+            // Unblockable moves ignore guard entirely
             if (!combatData.Blockable)
             {
                 return HitOutcome.NormalHit;
             }
-
-            bool isCrouching = defender.HasState(PlayerStates.Crouching);
 
             switch (height)
             {
@@ -58,10 +64,13 @@ public class CombatExecutor
                     return HitOutcome.Blocked;
             }
 
-            // Wrong guard: standing vs low, crouching vs mid — falls through to hit
+            // If we reach here: wrong guard type
+            // Standing guard vs Low → hit goes through
+            // Crouch guard vs Mid → hit goes through
+            // Falls through to normal/counter hit check below
         }
 
-        // Counter hit: defender was in attack startup
+        // Counter hit: defender was attacking
         if (defender.HasState(PlayerStates.Attacking))
         {
             return HitOutcome.CounterHit;

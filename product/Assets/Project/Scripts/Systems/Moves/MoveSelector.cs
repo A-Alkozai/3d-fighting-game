@@ -192,6 +192,13 @@ public class MoveSelector
     {
         if (ActiveMove == null || IsStateMove)
         {
+            // Clean up Sidestepping
+            if (stateManager.HasState(PlayerStates.Sidestepping))
+            {
+                stateManager.RemoveState(PlayerStates.Sidestepping);
+                stateManager.AddState(PlayerStates.Idle);
+            }
+
             MoveData move = null;
             if (stateManager.HasState(PlayerStates.Falling))
             {
@@ -200,6 +207,10 @@ public class MoveSelector
             else if (stateManager.HasState(PlayerStates.Lying))
             {
                 move = movesDatabase.GetMoveById("lying");
+            }
+            else if (stateManager.HasState(PlayerStates.Rising))
+            {
+                move = movesDatabase.GetMoveById("rising");
             }
             else if (stateManager.HasState(PlayerStates.Crouching))
             {

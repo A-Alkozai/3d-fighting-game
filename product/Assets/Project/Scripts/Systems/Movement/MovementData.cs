@@ -39,13 +39,5 @@ public class MovementData : IIdentifiable
             }
             movement.InitialiseVector();
         }
-        Debug.Log($"ID: {id}");
-        foreach (var pair in movementsObj)
-        {
-            Debug.Log($"Frame: {pair.Key}");
-            Debug.Log($"dx: {pair.Value.Dx}, dy: {pair.Value.Dy}, dz: {pair.Value.Dz}");
-            Debug.Log($"Total Frames: {pair.Value.TotalFrames}");
-            Debug.Log($"Vector3: {pair.Value.Vector}");
-        }
     }
 }

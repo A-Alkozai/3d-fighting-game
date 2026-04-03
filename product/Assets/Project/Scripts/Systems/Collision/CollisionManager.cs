@@ -11,12 +11,13 @@ public class CollisionManager
 
     private HashSet<string> activeHits = new HashSet<string>();
 
-    public CollisionManager(ICollidable player1, ICollidable player2)
+    public CollisionManager(ICollidable player1, ICollidable player2,
+                            CombatExecutor combatExecutor)
     {
         this.player1 = player1;
         this.player2 = player2;
-        hitCollisionExecutor = new HitCollisionExecutor();
-        pushCollisionExecutor = new PushCollisionExecutor();
+        this.hitCollisionExecutor = new HitCollisionExecutor(combatExecutor);
+        this.pushCollisionExecutor = new PushCollisionExecutor();
     }
 
     public void Update()
@@ -32,6 +33,11 @@ public class CollisionManager
         List<CollisionBox> hitboxes = attacker.GetActiveHitboxes();
         if (hitboxes.Count == 0) return;
 
+        // One hit per move per defender
+        string moveId = attacker.GetCurrentMoveId();
+        string hitId = $"{attacker.PlayerId}_{moveId}_{defender.PlayerId}";
+        if (activeHits.Contains(hitId)) return;
+
         IEnumerable<CollisionBox> hurtboxes = defender.GetAllHurtboxes();
 
         foreach (CollisionBox hitbox in hitboxes)
@@ -40,9 +46,6 @@ public class CollisionManager
             {
                 if (!hitbox.GetHitboxBounds().Intersects(hurtbox.GetHurtboxBounds()))
                     continue;
-
-                string hitId = $"{attacker.PlayerId}_{hitbox.Id}_{defender.PlayerId}";
-                if (activeHits.Contains(hitId)) continue;
 
                 activeHits.Add(hitId);
 
@@ -54,7 +57,7 @@ public class CollisionManager
                 );
 
                 hitCollisionExecutor.Execute(data);
-                break; // one hitbox can only hit one hurtbox per activation
+                return; // one hit registered for this entire move
             }
         }
     }
@@ -75,11 +78,12 @@ public class CollisionManager
         {
             string[] parts = hitId.Split('_');
             string attackerId = parts[0];
-            string hitboxId = parts[1];
+            string moveId = parts[1];
 
             ICollidable attacker = attackerId == player1.PlayerId.ToString() ? player1 : player2;
-            CollisionBox box = attacker.GetCollisionBox(hitboxId);
-            return box == null || !box.HitboxActive;
+            string currentMoveId = attacker.GetCurrentMoveId();
+
+            return currentMoveId == null || currentMoveId != moveId;
         });
     }
 }
