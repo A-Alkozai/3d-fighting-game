@@ -51,6 +51,11 @@ public class Player : MonoBehaviour, ICollidable
         return collisionBoxManager.GetActiveHitboxes();
     }
 
+    public CombatHitboxEntry GetActiveHitboxEntry(string hitboxId)
+    {
+        return combatManager.GetActiveHitboxEntry(hitboxId);
+    }
+
     public IEnumerable<CollisionBox> GetAllHurtboxes()
     {
         return collisionBoxManager.GetAllHurtboxes();

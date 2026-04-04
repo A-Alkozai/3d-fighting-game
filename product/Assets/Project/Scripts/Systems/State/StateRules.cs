@@ -10,6 +10,7 @@ public struct StateRules
     private static PlayerStates InAir = PlayerStates.Airborne | PlayerStates.Falling | PlayerStates.Jumping;
     private static PlayerStates CannotWalk = PlayerStates.Lying | PlayerStates.Crouching | PlayerStates.Dashing
                                                                 | PlayerStates.Sidestepping;
+    private static PlayerStates AnyGuard = PlayerStates.StandGuarding | PlayerStates.CrouchGuarding;
 
     private static readonly Dictionary<PlayerStates, StateRules> stateRules = new()
     {
@@ -22,17 +23,17 @@ public struct StateRules
         {
             Blocks = DisableMovement | InAir | PlayerStates.Lying | PlayerStates.Crouching,
             Overrides = PlayerStates.Idle | PlayerStates.Walking | PlayerStates.Running | PlayerStates.RunMomentum
-                                        | PlayerStates.Sidestepping | PlayerStates.Guarding,
+                                        | PlayerStates.Sidestepping | AnyGuard,
         },
         [PlayerStates.Running] = new StateRules
         {
             Blocks = DisableMovement | InAir | CannotWalk,
-            Overrides = PlayerStates.Idle | PlayerStates.Walking | PlayerStates.Guarding,
+            Overrides = PlayerStates.Idle | PlayerStates.Walking | AnyGuard,
         },
         [PlayerStates.Jumping] = new StateRules
         {
             Blocks = DisableMovement | InAir | CannotWalk,
-            Overrides = PlayerStates.Idle | PlayerStates.Walking | PlayerStates.Guarding,
+            Overrides = PlayerStates.Idle | PlayerStates.Walking | AnyGuard,
             Next = PlayerStates.Falling
         },
         [PlayerStates.Sidestepping] = new StateRules
@@ -40,7 +41,7 @@ public struct StateRules
             Blocks = DisableMovement | InAir | PlayerStates.Lying | PlayerStates.Jumping
                     | PlayerStates.Crouching | PlayerStates.Walking | PlayerStates.Running
                     | PlayerStates.RunMomentum | PlayerStates.Rising,
-            Overrides = PlayerStates.Idle | PlayerStates.Guarding,
+            Overrides = PlayerStates.Idle | AnyGuard,
         },
         [PlayerStates.Rolling] = new StateRules
         {
@@ -50,7 +51,8 @@ public struct StateRules
         [PlayerStates.Crouching] = new StateRules
         {
             Blocks = DisableMovement | InAir | PlayerStates.Lying,
-            Overrides = PlayerStates.Idle | PlayerStates.Walking | PlayerStates.Running | PlayerStates.RunMomentum,
+            Overrides = PlayerStates.Idle | PlayerStates.Walking | PlayerStates.Running 
+                        | PlayerStates.RunMomentum | PlayerStates.StandGuarding,
             Next = PlayerStates.Rising
         },
         [PlayerStates.Lying] = new StateRules
@@ -67,17 +69,14 @@ public struct StateRules
         {
             Blocks = PlayerStates.Stunned | PlayerStates.Recovery,
             Overrides = PlayerStates.Idle | PlayerStates.Walking | PlayerStates.Running | PlayerStates.RunMomentum
-                                        | PlayerStates.Dashing | PlayerStates.Rising | PlayerStates.Guarding,
+                                        | PlayerStates.Dashing | PlayerStates.Rising | AnyGuard,
         },
-        [PlayerStates.Guarding] = new StateRules
-        {
-            Overrides = PlayerStates.Dashing | PlayerStates.Running | PlayerStates.RunMomentum | PlayerStates.Sidestepping,
-        },
+
         [PlayerStates.Stunned] = new StateRules
         {
             Overrides = PlayerStates.Walking | PlayerStates.Running | PlayerStates.RunMomentum | PlayerStates.Sidestepping
                                             | PlayerStates.Dashing | PlayerStates.Rising | PlayerStates.Jumping
-                                            | PlayerStates.Rolling | PlayerStates.Recovery | PlayerStates.Guarding,
+                                            | PlayerStates.Rolling | PlayerStates.Recovery | AnyGuard,
         },
     };
 

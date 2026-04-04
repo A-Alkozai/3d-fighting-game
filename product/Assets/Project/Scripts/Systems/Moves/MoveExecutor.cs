@@ -135,6 +135,8 @@ public class MoveExecutor
 
     public void SetFallback(MoveData newMove)
     {
+        if (newMove == null) return;
+        if (currentMove != null && currentMove.Id == newMove.Id) return;
         StartMove(newMove);
         isStateMove = true;
     }
