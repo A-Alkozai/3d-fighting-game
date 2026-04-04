@@ -33,31 +33,23 @@ public class CollisionManager
         List<CollisionBox> hitboxes = attacker.GetActiveHitboxes();
         if (hitboxes.Count == 0) return;
 
-        // One hit per move per defender
         string moveId = attacker.GetCurrentMoveId();
         string hitId = $"{attacker.PlayerId}_{moveId}_{defender.PlayerId}";
-        if (activeHits.Contains(hitId)) return;
 
-        IEnumerable<CollisionBox> hurtboxes = defender.GetAllHurtboxes();
+        if (activeHits.Contains(hitId)) return;
 
         foreach (CollisionBox hitbox in hitboxes)
         {
-            foreach (CollisionBox hurtbox in hurtboxes)
+            foreach (CollisionBox hurtbox in defender.GetAllHurtboxes())
             {
-                if (!hitbox.GetHitboxBounds().Intersects(hurtbox.GetHurtboxBounds()))
-                    continue;
-
-                activeHits.Add(hitId);
-
-                HitCollisionData data = new HitCollisionData(
-                    attacker,
-                    defender,
-                    hitbox,
-                    hurtbox
-                );
-
-                hitCollisionExecutor.Execute(data);
-                return; // one hit registered for this entire move
+                if (hitbox.GetHitboxBounds().Intersects(hurtbox.GetHurtboxBounds()))
+                {
+                    CombatHitboxEntry entry = attacker.GetActiveHitboxEntry(hitbox.Id);
+                    HitCollisionData data = new HitCollisionData(attacker, defender, hitbox, hurtbox, entry);
+                    activeHits.Add(hitId);
+                    hitCollisionExecutor.Execute(data);
+                    return;
+                }
             }
         }
     }

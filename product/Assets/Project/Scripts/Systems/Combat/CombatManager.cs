@@ -10,6 +10,7 @@ public class CombatManager
     private CombatData currentCombatData;
     private string currentMoveId;
     private HashSet<string> activeHitboxIds = new HashSet<string>();
+    private Dictionary<string, CombatHitboxEntry> activeHitboxEntries = new Dictionary<string, CombatHitboxEntry>();
 
     public CombatManager(MoveExecutor moveExecutor, CollisionBoxManager collisionBoxManager)
     {
@@ -28,7 +29,7 @@ public class CombatManager
         if (currentMove == null) return;
 
         string moveId = currentMove.Id;
-        int currentFrame = moveExecutor.FrameCounter.GetFrameNumber();  
+        int currentFrame = moveExecutor.FrameCounter.GetFrameNumber();
 
         if (moveId != currentMoveId)
         {
@@ -49,12 +50,14 @@ public class CombatManager
             {
                 collisionBoxManager.ActivateHitbox(entry.HitboxId, entry.SizeMultiplier);
                 activeHitboxIds.Add(entry.HitboxId);
+                activeHitboxEntries[entry.HitboxId] = entry;
                 Debug.Log($"[CombatManager] Activated hitbox: {entry.HitboxId} at frame {currentFrame}");
             }
             else if (!shouldBeActive && isActive)
             {
                 collisionBoxManager.DeactivateHitbox(entry.HitboxId);
                 activeHitboxIds.Remove(entry.HitboxId);
+                activeHitboxEntries.Remove(entry.HitboxId);
                 Debug.Log($"[CombatManager] Deactivated hitbox: {entry.HitboxId} at frame {currentFrame}");
             }
         }
@@ -67,7 +70,15 @@ public class CombatManager
             collisionBoxManager.DeactivateHitbox(id);
         }
         activeHitboxIds.Clear();
+        activeHitboxEntries.Clear();
         currentCombatData = null;
+    }
+
+    public CombatHitboxEntry GetActiveHitboxEntry(string hitboxId)
+    {
+        if (activeHitboxEntries.TryGetValue(hitboxId, out CombatHitboxEntry entry))
+            return entry;
+        return null;
     }
 
     public CombatData GetCurrentCombatData()

@@ -11,6 +11,7 @@ public interface ICollidable
     Transform GetTransform();
     void SetMovementBlocked(bool blocked);
     CombatData GetCombatData();
+    CombatHitboxEntry GetActiveHitboxEntry(string hitboxId);
     bool HasState(PlayerStates state);
     void ReceiveCombatResult(CombatResult result);
     string GetCurrentMoveId();

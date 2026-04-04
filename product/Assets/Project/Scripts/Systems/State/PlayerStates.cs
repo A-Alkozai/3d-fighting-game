@@ -27,10 +27,11 @@ public enum PlayerStates
     Rolling         = 1 << 17,
 
     Attacking       = 1 << 18,
-    Guarding        = 1 << 19,
+    StandGuarding   = 1 << 19,
+    CrouchGuarding  = 1 << 20,
 
-    Recovery        = 1 << 20,
-    Immunity        = 1 << 21,  
-    Stunned         = 1 << 22,
-    KO              = 1 << 23
+    Recovery        = 1 << 21,
+    Immunity        = 1 << 22,  
+    Stunned         = 1 << 23,
+    KO              = 1 << 24
 }
