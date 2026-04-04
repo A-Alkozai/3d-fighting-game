@@ -11,70 +11,54 @@ public class CombatExecutor
             return;
         }
 
-        HitOutcome outcome = Evaluate(combatData, data.Defender);
+        HitOutcome outcome = Evaluate(combatData, data.HitboxEntry, data.Defender);
         CombatResult result = BuildResult(outcome, combatData);
 
         Debug.Log($"[CombatExecutor] P{data.Attacker.PlayerId} → P{data.Defender.PlayerId} | " +
-                  $"Outcome: {outcome} | Damage: {result.Damage} | Stun: {result.StunFrames}");
+                $"Outcome: {outcome} | Damage: {result.Damage} | Stun: {result.StunFrames}");
 
         data.Defender.ReceiveCombatResult(result);
     }
 
-    private HitOutcome Evaluate(CombatData combatData, ICollidable defender)
+    private HitOutcome Evaluate(CombatData combatData, CombatHitboxEntry hitboxEntry, ICollidable defender)
     {
-        AttackHeight height = combatData.AttackHeight;
+        AttackHeight height = hitboxEntry.AttackHeight;
+        bool isStandGuarding = defender.HasState(PlayerStates.StandGuarding);
+        bool isCrouchGuarding = defender.HasState(PlayerStates.CrouchGuarding);
         bool isCrouching = defender.HasState(PlayerStates.Crouching);
-        bool isGuarding = defender.HasState(PlayerStates.Guarding);
-        bool isIdle = defender.HasState(PlayerStates.Idle);
         bool isAttacking = defender.HasState(PlayerStates.Attacking);
 
-        Debug.Log($"[CombatExecutor] Evaluate: height={height}, idle={isIdle}, " +
-                $"crouching={isCrouching}, guarding={isGuarding}, attacking={isAttacking}");
+        if (!combatData.Blockable)
+        {
+            if (isAttacking) return HitOutcome.CounterHit;
+            return HitOutcome.NormalHit;
+        }
 
-        // High attacks whiff over crouching opponents (regardless of guard)
         if (height == AttackHeight.High && isCrouching)
         {
             return HitOutcome.Whiff;
         }
 
-        // Block checks
-        if (defender.HasState(PlayerStates.Guarding))
+        switch (height)
         {
-            // Unblockable moves ignore guard entirely
-            if (!combatData.Blockable)
-            {
-                return HitOutcome.NormalHit;
-            }
+            case AttackHeight.High:
+                if (isStandGuarding) return HitOutcome.Blocked;
+                break;
 
-            switch (height)
-            {
-                case AttackHeight.High:
-                    if (!isCrouching) return HitOutcome.Blocked;
-                    break;
+            case AttackHeight.Mid:
+                if (isStandGuarding) return HitOutcome.Blocked;
+                break;
 
-                case AttackHeight.Mid:
-                    if (!isCrouching) return HitOutcome.Blocked;
-                    break;
+            case AttackHeight.Low:
+                if (isCrouchGuarding) return HitOutcome.Blocked;
+                break;
 
-                case AttackHeight.Low:
-                    if (isCrouching) return HitOutcome.Blocked;
-                    break;
-
-                case AttackHeight.SpecialMid:
-                    return HitOutcome.Blocked;
-            }
-
-            // If we reach here: wrong guard type
-            // Standing guard vs Low → hit goes through
-            // Crouch guard vs Mid → hit goes through
-            // Falls through to normal/counter hit check below
+            case AttackHeight.SpecialMid:
+                if (isStandGuarding || isCrouchGuarding) return HitOutcome.Blocked;
+                break;
         }
 
-        // Counter hit: defender was attacking
-        if (defender.HasState(PlayerStates.Attacking))
-        {
-            return HitOutcome.CounterHit;
-        }
+        if (isAttacking) return HitOutcome.CounterHit;
 
         return HitOutcome.NormalHit;
     }
