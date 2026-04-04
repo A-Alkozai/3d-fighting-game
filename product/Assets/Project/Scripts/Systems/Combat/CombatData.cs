@@ -6,7 +6,6 @@ using UnityEngine;
 public class CombatData : IIdentifiable
 {
     [SerializeField] private string id;
-    [SerializeField] private string attackHeight;
     [SerializeField] private int damage;
     [SerializeField] private int counterHitDamage;
     [SerializeField] private bool blockable;
@@ -25,9 +24,6 @@ public class CombatData : IIdentifiable
     public int BlockStunFrames => blockStunFrames;
     public float Knockback => knockback;
     public List<CombatHitboxEntry> HitboxEntries => hitboxEntries;
-
-    public AttackHeight AttackHeight =>
-        (AttackHeight)Enum.Parse(typeof(AttackHeight), attackHeight);
 
     public HitEffect HitEffect =>
         (HitEffect)Enum.Parse(typeof(HitEffect), hitEffect);
