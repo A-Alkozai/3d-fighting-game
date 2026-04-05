@@ -34,17 +34,21 @@ public class CollisionManager
         if (hitboxes.Count == 0) return;
 
         string moveId = attacker.GetCurrentMoveId();
-        string hitId = $"{attacker.PlayerId}_{moveId}_{defender.PlayerId}";
-
-        if (activeHits.Contains(hitId)) return;
 
         foreach (CollisionBox hitbox in hitboxes)
         {
+            CombatHitboxEntry entry = attacker.GetActiveHitboxEntry(hitbox.Id);
+            if (entry == null) continue;
+
+            // Phase-level tracking: same startFrame = same phase
+            string hitId = $"{attacker.PlayerId}_{moveId}_{entry.StartFrame}_{defender.PlayerId}";
+
+            if (activeHits.Contains(hitId)) continue;
+
             foreach (CollisionBox hurtbox in defender.GetAllHurtboxes())
             {
                 if (hitbox.GetHitboxBounds().Intersects(hurtbox.GetHurtboxBounds()))
                 {
-                    CombatHitboxEntry entry = attacker.GetActiveHitboxEntry(hitbox.Id);
                     HitCollisionData data = new HitCollisionData(attacker, defender, hitbox, hurtbox, entry);
                     activeHits.Add(hitId);
                     hitCollisionExecutor.Execute(data);

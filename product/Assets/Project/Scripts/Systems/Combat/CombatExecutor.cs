@@ -11,18 +11,25 @@ public class CombatExecutor
             return;
         }
 
-        HitOutcome outcome = Evaluate(combatData, data.HitboxEntry, data.Defender);
-        CombatResult result = BuildResult(outcome, combatData);
+        CombatHitboxEntry entry = data.HitboxEntry;
+        if (entry == null)
+        {
+            Debug.LogWarning("[CombatExecutor] No hitbox entry for this hit");
+            return;
+        }
+
+        HitOutcome outcome = Evaluate(combatData, entry, data.Defender);
+        CombatResult result = BuildResult(outcome, entry);
 
         Debug.Log($"[CombatExecutor] P{data.Attacker.PlayerId} → P{data.Defender.PlayerId} | " +
-                $"Outcome: {outcome} | Damage: {result.Damage} | Stun: {result.StunFrames}");
+                  $"Outcome: {outcome} | Damage: {result.Damage} | Stun: {result.StunFrames}");
 
         data.Defender.ReceiveCombatResult(result);
     }
 
-    private HitOutcome Evaluate(CombatData combatData, CombatHitboxEntry hitboxEntry, ICollidable defender)
+    private HitOutcome Evaluate(CombatData combatData, CombatHitboxEntry entry, ICollidable defender)
     {
-        AttackHeight height = hitboxEntry.AttackHeight;
+        AttackHeight height = entry.AttackHeight;
         bool isStandGuarding = defender.HasState(PlayerStates.StandGuarding);
         bool isCrouchGuarding = defender.HasState(PlayerStates.CrouchGuarding);
         bool isCrouching = defender.HasState(PlayerStates.Crouching);
@@ -63,34 +70,34 @@ public class CombatExecutor
         return HitOutcome.NormalHit;
     }
 
-    private CombatResult BuildResult(HitOutcome outcome, CombatData combatData)
+    private CombatResult BuildResult(HitOutcome outcome, CombatHitboxEntry entry)
     {
         switch (outcome)
         {
             case HitOutcome.NormalHit:
                 return new CombatResult(
                     outcome,
-                    combatData.Damage,
-                    combatData.HitStunFrames,
-                    combatData.Knockback,
-                    combatData.HitEffect
+                    entry.Damage,
+                    entry.HitStunFrames,
+                    entry.Knockback,
+                    entry.HitEffect
                 );
 
             case HitOutcome.CounterHit:
                 return new CombatResult(
                     outcome,
-                    combatData.CounterHitDamage,
-                    (int)(combatData.HitStunFrames * 1.5f),
-                    combatData.Knockback * 1.2f,
-                    combatData.CounterHitEffect
+                    entry.CounterHitDamage,
+                    (int)(entry.HitStunFrames * 1.5f),
+                    entry.Knockback * 1.2f,
+                    entry.CounterHitEffect
                 );
 
             case HitOutcome.Blocked:
                 return new CombatResult(
                     outcome,
                     0,
-                    combatData.BlockStunFrames,
-                    combatData.Knockback * 0.5f,
+                    entry.BlockStunFrames,
+                    entry.Knockback * 0.5f,
                     HitEffect.None
                 );
 
