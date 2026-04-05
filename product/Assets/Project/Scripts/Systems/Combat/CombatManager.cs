@@ -11,6 +11,7 @@ public class CombatManager
     private string currentMoveId;
     private HashSet<string> activeHitboxIds = new HashSet<string>();
     private Dictionary<string, CombatHitboxEntry> activeHitboxEntries = new Dictionary<string, CombatHitboxEntry>();
+    private Dictionary<int, List<CombatHitboxEntry>> phases = new Dictionary<int, List<CombatHitboxEntry>>();
 
     public CombatManager(MoveExecutor moveExecutor, CollisionBoxManager collisionBoxManager)
     {
@@ -36,6 +37,7 @@ public class CombatManager
             DeactivateAll();
             currentMoveId = moveId;
             currentCombatData = combatDatabase.GetCombatData(moveId);
+            BuildPhases();
         }
 
         if (currentCombatData == null) return;
@@ -51,15 +53,28 @@ public class CombatManager
                 collisionBoxManager.ActivateHitbox(entry.HitboxId, entry.SizeMultiplier);
                 activeHitboxIds.Add(entry.HitboxId);
                 activeHitboxEntries[entry.HitboxId] = entry;
-                Debug.Log($"[CombatManager] Activated hitbox: {entry.HitboxId} at frame {currentFrame}");
             }
             else if (!shouldBeActive && isActive)
             {
                 collisionBoxManager.DeactivateHitbox(entry.HitboxId);
                 activeHitboxIds.Remove(entry.HitboxId);
                 activeHitboxEntries.Remove(entry.HitboxId);
-                Debug.Log($"[CombatManager] Deactivated hitbox: {entry.HitboxId} at frame {currentFrame}");
             }
+        }
+    }
+
+    private void BuildPhases()
+    {
+        phases.Clear();
+        if (currentCombatData == null) return;
+
+        foreach (CombatHitboxEntry entry in currentCombatData.HitboxEntries)
+        {
+            if (!phases.ContainsKey(entry.StartFrame))
+            {
+                phases[entry.StartFrame] = new List<CombatHitboxEntry>();
+            }
+            phases[entry.StartFrame].Add(entry);
         }
     }
 
@@ -71,7 +86,13 @@ public class CombatManager
         }
         activeHitboxIds.Clear();
         activeHitboxEntries.Clear();
+        phases.Clear();
         currentCombatData = null;
+    }
+
+    public int GetPhaseIndex(CombatHitboxEntry entry)
+    {
+        return entry.StartFrame;
     }
 
     public CombatHitboxEntry GetActiveHitboxEntry(string hitboxId)
