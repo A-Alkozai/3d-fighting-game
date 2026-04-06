@@ -4,7 +4,7 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] UIManager uiManager;
     [SerializeField] InputManager inputManager;
-    [SerializeField] Camera camera;
+    [SerializeField] new Camera camera;
     [SerializeField] Player player1;
     [SerializeField] Player player2;
 
@@ -20,26 +20,39 @@ public class GameManager : MonoBehaviour
     private int gameFPS = 60;
     private float logicTimer = 0f;
     private float logicDeltaTime = 1f / 60f;
+    private bool gameActive = false;
 
-    void Start()
+    public void StartGame(InputKeys inputKeys)
     {
+        this.inputKeys = inputKeys;
         Application.targetFrameRate = gameFPS;
-        inputKeys = new InputKeys();
+
         inputProvider1 = new LocalInputProvider(inputKeys);
         inputManager.AddInputToPlayerMap(inputProvider1, player1);
         inputManager.AddRecentInputsUI(uiManager.GetRecentInputsUI());
+
         player1.start();
         player2.start();
+
         cameraManager = new CameraManager(camera, player1.transform, player2.transform);
         cameraManager.SetMode(new CombatCameraMode());
+
         combatExecutor = new CombatExecutor();
         collisionManager = new CollisionManager(player1, player2, combatExecutor);
+
         healthBarP1 = uiManager.GetHealthBarP1();
         healthBarP2 = uiManager.GetHealthBarP2();
+
+        gameActive = true;
+        logicTimer = 0f;
+
+        Debug.Log("[GameManager] Game started");
     }
 
     void Update()
     {
+        if (!gameActive) return;
+
         inputManager.update();
 
         while (logicTimer >= logicDeltaTime)
@@ -50,7 +63,7 @@ public class GameManager : MonoBehaviour
             collisionManager.Update();
         }
 
-        healthBarP1.UpdateHealth(player1.GetHealthManager().CurrentHealth, 
+        healthBarP1.UpdateHealth(player1.GetHealthManager().CurrentHealth,
                                  player1.GetHealthManager().MaxHealth);
         healthBarP2.UpdateHealth(player2.GetHealthManager().CurrentHealth,
                                  player2.GetHealthManager().MaxHealth);
