@@ -4,7 +4,7 @@ public class CombatCameraMode : ICameraMode
 {
     // Camera distance from players
     private float minDistance = 3f;
-    private float maxDistance = 8f;
+    private float maxDistance = 6.5f;
     private float distanceMultiplier = 1.2f;
 
     // Camera info
