@@ -76,11 +76,6 @@ public class Player : MonoBehaviour, ICollidable
         return transform;
     }
 
-    public void SetMovementBlocked(bool blocked)
-    {
-        // movementExecutor.SetBlocked(blocked);
-    }
-
     public CombatData GetCombatData()
     {
         MoveData currentMove = moveExecutor.CurrentMove;  // ← property, not method
