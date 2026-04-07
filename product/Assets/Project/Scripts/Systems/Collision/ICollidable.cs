@@ -9,7 +9,6 @@ public interface ICollidable
     CollisionBox GetCollisionBox(string id);
     BodyCollider GetBodyCollider();
     Transform GetTransform();
-    void SetMovementBlocked(bool blocked);
     CombatData GetCombatData();
     CombatHitboxEntry GetActiveHitboxEntry(string hitboxId);
     bool HasState(PlayerStates state);

@@ -4,7 +4,6 @@ public class BodyCollider
 {
     private GameObject bodyColliderObject;
     private BoxCollider collider;
-    private Rigidbody rigidbody;
 
     public BodyCollider(Transform body, BodyColliderData data)
     {
@@ -16,18 +15,7 @@ public class BodyCollider
         collider = bodyColliderObject.AddComponent<BoxCollider>();
         collider.size = data.Size;
         collider.center = data.Center;
-        collider.isTrigger = false;
-
-        rigidbody = body.GetComponent<Rigidbody>();
-        if (rigidbody == null)
-        {
-            rigidbody = body.gameObject.AddComponent<Rigidbody>();
-        }
-        rigidbody.isKinematic = true;
-        rigidbody.useGravity = true;
-        rigidbody.constraints = RigidbodyConstraints.FreezeRotationX
-                              | RigidbodyConstraints.FreezeRotationY
-                              | RigidbodyConstraints.FreezeRotationZ;
+        collider.isTrigger = true;  // We handle collision manually, trigger avoids Unity resolving it
     }
 
     public Bounds GetBounds()

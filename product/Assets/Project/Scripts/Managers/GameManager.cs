@@ -8,11 +8,15 @@ public class GameManager : MonoBehaviour
     [SerializeField] Player player1;
     [SerializeField] Player player2;
 
+    [Header("Stage")]
+    [SerializeField] private Transform stageWallsParent;
+
     private IInputProvider inputProvider1;
     private IInputProvider inputProvider2;
     private CameraManager cameraManager;
     private CollisionManager collisionManager;
     private CombatExecutor combatExecutor;
+    private StageCollision stageCollision;
     private HealthBarUI healthBarP1;
     private HealthBarUI healthBarP2;
     private InputKeys inputKeys;
@@ -38,15 +42,14 @@ public class GameManager : MonoBehaviour
         cameraManager.SetMode(new CombatCameraMode());
 
         combatExecutor = new CombatExecutor();
-        collisionManager = new CollisionManager(player1, player2, combatExecutor);
+        stageCollision = new StageCollision(stageWallsParent);
+        collisionManager = new CollisionManager(player1, player2, combatExecutor, stageCollision);
 
         healthBarP1 = uiManager.GetHealthBarP1();
         healthBarP2 = uiManager.GetHealthBarP2();
 
         gameActive = true;
         logicTimer = 0f;
-
-        Debug.Log("[GameManager] Game started");
     }
 
     void Update()
