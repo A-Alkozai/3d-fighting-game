@@ -5,6 +5,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private RecentInputsUI recentInputsUI;
     [SerializeField] private HealthBarUI healthBarP1;
     [SerializeField] private HealthBarUI healthBarP2;
+    [SerializeField] private RoundHUD roundHUD;
 
     private bool isActiveRecentInputsUI = true;
 
@@ -31,5 +32,10 @@ public class UIManager : MonoBehaviour
     public HealthBarUI GetHealthBarP2()
     {
         return healthBarP2;
+    }
+
+    public RoundHUD GetRoundHUD()
+    {
+        return roundHUD;
     }
 }

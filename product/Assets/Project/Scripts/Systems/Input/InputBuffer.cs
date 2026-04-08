@@ -120,4 +120,9 @@ public class InputBuffer
     {
         return inputBuffer.Contains(input);
     }
+
+    public void Clear()
+    {
+        inputBuffer.Clear();
+    }
 }

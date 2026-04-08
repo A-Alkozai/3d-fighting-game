@@ -6,6 +6,7 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private GameObject controlsPanel;
     [SerializeField] private GameObject optionsPanel;
+    [SerializeField] private GameObject roundSelectionPanel;
     [SerializeField] private GameObject gameUIPanel;
 
     [Header("Game References")]
@@ -15,6 +16,7 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private Camera gameCamera;
 
     private ControlsPanel controlsPanelScript;
+    private RoundSelectionPanel roundSelectionPanelScript;
     private InputKeys inputKeys;
     private bool gameStarted = false;
 
@@ -23,9 +25,12 @@ public class MainMenuManager : MonoBehaviour
         inputKeys = new InputKeys();
         controlsPanelScript = controlsPanel.GetComponent<ControlsPanel>();
         controlsPanelScript.Initialise(inputKeys, this);
-        
+
         OptionsPanel optionsPanelScript = optionsPanel.GetComponent<OptionsPanel>();
         optionsPanelScript.Initialise(this);
+
+        roundSelectionPanelScript = roundSelectionPanel.GetComponent<RoundSelectionPanel>();
+        roundSelectionPanelScript.Initialise(this);
     }
 
     void Start()
@@ -34,22 +39,31 @@ public class MainMenuManager : MonoBehaviour
         SetGameActive(false);
     }
 
+    public void ReturnFromGame()
+    {
+        ShowMainMenu();
+        SetGameActive(false);
+    }
+
     public void OnPlayPressed()
     {
         mainMenuPanel.SetActive(false);
+        roundSelectionPanel.SetActive(true);
+    }
+
+    public void OnRoundsSelected(int roundsToWin)
+    {
+        roundSelectionPanel.SetActive(false);
         controlsPanel.SetActive(false);
         optionsPanel.SetActive(false);
         gameUIPanel.SetActive(true);
 
         SetGameActive(true);
 
-        if (!gameStarted)
-        {
-            gameManager.StartGame(inputKeys);
-            gameStarted = true;
-        }
+        // Always call StartGame — it handles fresh vs repeat internally
+        gameManager.StartGame(inputKeys, roundsToWin);
 
-        Debug.Log("[MainMenu] Game started");
+        Debug.Log($"[MainMenu] Game started — First to {roundsToWin}");
     }
 
     public void OnControlsPressed()
@@ -69,6 +83,7 @@ public class MainMenuManager : MonoBehaviour
     {
         controlsPanel.SetActive(false);
         optionsPanel.SetActive(false);
+        roundSelectionPanel.SetActive(false);
         mainMenuPanel.SetActive(true);
     }
 
@@ -87,6 +102,7 @@ public class MainMenuManager : MonoBehaviour
         mainMenuPanel.SetActive(true);
         controlsPanel.SetActive(false);
         optionsPanel.SetActive(false);
+        roundSelectionPanel.SetActive(false);
         gameUIPanel.SetActive(false);
     }
 
