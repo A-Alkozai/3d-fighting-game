@@ -78,7 +78,7 @@ public class CombatManager
         }
     }
 
-    private void DeactivateAll()
+    public void DeactivateAll()
     {
         foreach (string id in activeHitboxIds)
         {

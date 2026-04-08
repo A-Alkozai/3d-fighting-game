@@ -3,12 +3,12 @@ using UnityEngine;
 public class CombatCameraMode : ICameraMode
 {
     // Camera distance from players
-    private float minDistance = 2f;
+    private float minDistance = 2.5f;
     private float maxDistance = 6f;
     private float distanceMultiplier = 1.2f;
 
     // Camera info
-    private float height = 2f;
+    private float height = 1.15f;
     private float targetHeight = 1.0f;
     private float cameraSide = -1f;
 

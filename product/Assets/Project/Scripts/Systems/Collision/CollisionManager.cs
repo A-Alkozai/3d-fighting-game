@@ -62,19 +62,27 @@ public class CollisionManager
 
     private void ResolvePush()
     {
+        // Don't push if either player is KO'd
+        if (player1.HasState(PlayerStates.KO) || player2.HasState(PlayerStates.KO))
+            return;
+
         pushCollisionExecutor.Execute(player1, player2);
     }
 
     private void ResolveStage()
     {
-        stageCollision.ResolvePlayer(
-            player1.GetTransform(), 
-            player1.GetBodyCollider().GetBounds()
-        );
-        stageCollision.ResolvePlayer(
-            player2.GetTransform(), 
-            player2.GetBodyCollider().GetBounds()
-        );
+        // Don't clamp KO'd players — let them stay where they fell
+        if (!player1.HasState(PlayerStates.KO))
+        {
+            stageCollision.ResolvePlayer(player1.GetTransform(),
+                                        player1.GetBodyCollider().GetBounds());
+        }
+
+        if (!player2.HasState(PlayerStates.KO))
+        {
+            stageCollision.ResolvePlayer(player2.GetTransform(),
+                                        player2.GetBodyCollider().GetBounds());
+        }
     }
 
     private void CleanupExpiredHits()

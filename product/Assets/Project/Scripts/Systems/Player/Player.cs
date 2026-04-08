@@ -34,7 +34,7 @@ public class Player : MonoBehaviour, ICollidable
     private AnimationManager animationManager;
     private MovementManager movementManager;
     private HealthManager healthManager;
-    private CombatManager combatManager;  
+    private CombatManager combatManager;
     private MoveSelector moveSelector;
     private MoveExecutor moveExecutor;
 
@@ -43,8 +43,12 @@ public class Player : MonoBehaviour, ICollidable
     private bool isKO = false;
     private bool koFalling = false;
     private int koFallTimer = 0;
+    private bool inputLocked = false;
+    private Vector3 spawnPosition;
+    private Quaternion spawnRotation;
 
     public int PlayerId => playerId;
+    public bool IsKO => isKO;
 
     public List<CollisionBox> GetActiveHitboxes()
     {
@@ -78,7 +82,7 @@ public class Player : MonoBehaviour, ICollidable
 
     public CombatData GetCombatData()
     {
-        MoveData currentMove = moveExecutor.CurrentMove;  // ← property, not method
+        MoveData currentMove = moveExecutor.CurrentMove;
         if (currentMove == null) return null;
         return combatManager.GetCombatDatabase().GetCombatData(currentMove.Id);
     }
@@ -86,6 +90,11 @@ public class Player : MonoBehaviour, ICollidable
     public bool HasState(PlayerStates state)
     {
         return stateManager.HasState(state);
+    }
+
+    public void SetInputLocked(bool locked)
+    {
+        inputLocked = locked;
     }
 
     public void ReceiveCombatResult(CombatResult result)
@@ -132,7 +141,6 @@ public class Player : MonoBehaviour, ICollidable
         stateManager.ResetState();
         stateManager.AddState(PlayerStates.KO);
 
-        // Get falling-ko animation length in frames for timer
         koFallTimer = animationManager.GetAnimationFrames("falling-ko");
         animationManager.PlayAnimation("falling-ko");
 
@@ -190,6 +198,10 @@ public class Player : MonoBehaviour, ICollidable
 
     public void start()
     {
+        // Store spawn position
+        spawnPosition = transform.position;
+        spawnRotation = transform.rotation;
+
         animationManager = new AnimationManager(animationExecutor);
         movementManager = new MovementManager(movementExecutor);
         moveExecutor = new MoveExecutor(stateManager, animationManager, movementManager);
@@ -205,6 +217,45 @@ public class Player : MonoBehaviour, ICollidable
         combatManager = new CombatManager(moveExecutor, collisionBoxManager);
         combatManager.LoadCombat();
         healthManager = new HealthManager(100);
+    }
+
+    public void ResetForRound()
+    {
+        // Reset position
+        transform.position = spawnPosition;
+        transform.rotation = spawnRotation;
+
+        // Reset health
+        healthManager.Reset();
+
+        // Reset states
+        isKO = false;
+        koFalling = false;
+        koFallTimer = 0;
+        isStunned = false;
+        stunTimer = 0;
+        inputLocked = false;
+
+        // Reset move system
+        if (moveExecutor.CurrentMove != null)
+        {
+            moveExecutor.CancelMove();
+        }
+
+        // Reset state manager
+        stateManager.ResetState();
+        stateManager.AddState(PlayerStates.Idle);
+
+        // Clear input buffer
+        inputBuffer.Clear();
+
+        // Reset combat manager hitboxes
+        combatManager.DeactivateAll();
+
+        // Play idle animation
+        animationManager.PlayAnimation("idle");
+
+        Debug.Log($"[Player P{playerId}] Reset for new round");
     }
 
     public void update()
@@ -230,6 +281,14 @@ public class Player : MonoBehaviour, ICollidable
             {
                 ExitStun();
             }
+            return;
+        }
+
+        if (inputLocked)
+        {
+            // Still run fallback so idle animation plays
+            moveSelector.FallbackMove();
+            moveExecutor.Update();
             return;
         }
 
