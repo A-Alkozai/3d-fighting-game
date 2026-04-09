@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+// Placeholder options panel - only has a back button for now
 public class OptionsPanel : MonoBehaviour
 {
     [SerializeField] private Button backButton;

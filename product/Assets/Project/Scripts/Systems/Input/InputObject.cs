@@ -1,12 +1,13 @@
 using UnityEngine.InputSystem;
 
+// Represents a single input event - tracks command, key, frame age, and whether it's held/pending
 public class InputObject
 {
     private InputCommand inputCommand;
     private Key inputKey;
-    private FrameCounter frame;
-    private bool isHeld;
-    private bool isPending;
+    private FrameCounter frame;   // Tracks how many frames since this input was created
+    private bool isHeld;          // True if this is a held-down directional input
+    private bool isPending;       // True while waiting to determine if this is a tap or hold
 
     public InputObject(InputCommand inputCommand, Key inputKey, bool isPending = false)
     {
@@ -31,6 +32,7 @@ public class InputObject
         return frame;
     }
 
+    // Resolve a pending input as either a tap (isHeld=false) or a hold (isHeld=true)
     public void SetIsHeld(bool isHeld)
     {
         isPending = false;
@@ -52,6 +54,7 @@ public class InputObject
         return isPending;
     }
 
+    // Returns true for directional inputs (movement), false for attacks
     public bool IsDirectional()
     {
         if (inputCommand == InputCommand.Left || inputCommand == InputCommand.Right ||
@@ -63,6 +66,7 @@ public class InputObject
         return false;
     }
 
+    // Used to convert raw Left/Right to normalised Forward/Backward based on facing direction
     public void ChangeInputCommand(InputCommand newInputCommand)
     {
         inputCommand = newInputCommand;

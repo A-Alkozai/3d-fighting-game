@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+// Displays round info: countdown/KO text in center, round counter, and win circles for each player
 public class RoundHUD : MonoBehaviour
 {
     [Header("Center Text")]
@@ -27,14 +28,14 @@ public class RoundHUD : MonoBehaviour
     private List<Image> p2Circles = new List<Image>();
     private int roundsToWin;
 
+    // Create win indicator circles based on how many rounds are needed to win
     public void Initialise(int roundsToWin)
     {
         this.roundsToWin = roundsToWin;
 
-        // Clear old circles
         ClearCircles();
 
-        // Spawn circles for each player
+        // Spawn one circle per round-to-win for each player
         for (int i = 0; i < roundsToWin; i++)
         {
             GameObject c1 = Instantiate(circlePrefab, p1CirclesParent);
@@ -52,6 +53,7 @@ public class RoundHUD : MonoBehaviour
         UpdateRoundCounter(1);
     }
 
+    // Destroy all existing circle objects and clear the lists
     private void ClearCircles()
     {
         foreach (Transform child in p1CirclesParent)
@@ -63,6 +65,7 @@ public class RoundHUD : MonoBehaviour
         p2Circles.Clear();
     }
 
+    // Color circles green up to the number of wins each player has
     public void UpdateWins(int p1Wins, int p2Wins)
     {
         for (int i = 0; i < p1Circles.Count; i++)
@@ -80,6 +83,7 @@ public class RoundHUD : MonoBehaviour
         roundCounterText.text = $"Round {round}";
     }
 
+    // Show countdown numbers (3, 2, 1) or "FIGHT!" with appropriate styling
     public void ShowCountdown(string text)
     {
         centerText.text = text;
@@ -96,6 +100,7 @@ public class RoundHUD : MonoBehaviour
         }
     }
 
+    // Show "KO" or "PLAYER X WINS!" text
     public void ShowKO(string text)
     {
         centerText.text = text;

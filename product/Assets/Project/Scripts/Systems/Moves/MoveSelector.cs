@@ -1,21 +1,20 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+// Reads input from the buffer and held inputs, traverses the move trees to find matching moves,
+// checks state/branchDelay requirements, and tells MoveExecutor what to play
 public class MoveSelector
 {
-    // Objects
     private InputBuffer inputBuffer;
     private MovesDatabase movesDatabase;
     private StateManager stateManager;
     private MoveExecutor moveExecutor;
     private FacingDirection facingDirection;
 
-    // Variables
-    private List<InputObject> activeInput = new List<InputObject>();
-    private List<InputObject> heldInputs = new List<InputObject>();
-    private List<InputObject> heldInputsWhileAttack = new List<InputObject>();
+    private List<InputObject> activeInput = new List<InputObject>();               // Inputs consumed by the current move
+    private List<InputObject> heldInputs = new List<InputObject>();                // Currently held directional inputs
+    private List<InputObject> heldInputsWhileAttack = new List<InputObject>();     // Held inputs queued during an attack
 
-    // Getters
     public IReadOnlyList<InputObject> ActiveInput => activeInput;
     public bool IsStateMove => moveExecutor.IsStateMove;
     public MoveData ActiveMove => moveExecutor.CurrentMove;
@@ -34,6 +33,7 @@ public class MoveSelector
         facingDirection = stateManager.GetFacingDirection();
     }
 
+    // Main update: process buffered inputs, then held inputs, then set fallback if nothing active
     public void Update()
     {
         ReadBuffer();
@@ -41,25 +41,33 @@ public class MoveSelector
         FallbackMove();
     }
 
+    // Determine which tree to search based on the input command
+    // If already in an attack chain, all inputs route to the attack tree
     public string DecideInputType(InputCommand input)
     {
+        // Mid-attack chain: everything goes through the attack tree
         if (ActiveAttackNode != null)
         {
             return "attack";
         }
 
+        // Attack buttons always go to the attack tree
         if (input == InputCommand.LeftPunch || input == InputCommand.RightPunch ||
             input == InputCommand.LeftKick  || input == InputCommand.RightKick  ||
             input == InputCommand.RageArt)
         { return "attack"; }
 
+        // Held directionals and up/down go to the movement tree
         if (input == InputCommand.BackwardHold || input == InputCommand.ForwardHold ||
             input == InputCommand.UpHold       || input == InputCommand.DownHold    ||
             input == InputCommand.Up           || input == InputCommand.Down)
         { return "movement"; }
+
+        // Tap directionals (forward/backward) are neutral - stored as context for compound inputs
         return "neutral";
     }
 
+    // Process buffered inputs one at a time, traversing the move tree for each
     public void ReadBuffer()
     {
         if (inputBuffer.Count() == 0)
@@ -72,14 +80,17 @@ public class MoveSelector
         {
             InputObject input = inputBuffer.GetInputAt(index);
 
+            // Stop at pending inputs (still determining tap vs hold)
             if (input.IsPending())
                 break;
 
+            // Convert Left/Right to Forward/Backward based on facing direction
             NormaliseInput(input);
             InputCommand inputCommand = input.GetInputCommand();
             MoveNode newInputNode;
             string inputType = DecideInputType(inputCommand);
 
+            // Neutral inputs are saved as context (e.g. Forward before LeftPunch = Forward+LeftPunch)
             if (inputType == "neutral")
             {
                 moveExecutor.SetPrevNeutralInput(input);
@@ -87,6 +98,7 @@ public class MoveSelector
                 continue;
             }
 
+            // If there's a previous neutral input, try the compound path first (neutral → this input)
             if (ExistsPrevNeutralInput() && PrevNeutralInput != null)
             {
                 newInputNode = GetNextNode(inputType, PrevNeutralInput.GetInputCommand());
@@ -101,11 +113,13 @@ public class MoveSelector
                 newInputNode = GetNextNode(inputType, inputCommand);
             }
 
+            // No matching node in the tree - stop processing
             if (newInputNode == null)
                 break;
 
             MoveData executableMove = ActiveMove;
 
+            // If this node has moves attached, check if any are executable (state + branchDelay)
             if (newInputNode.MoveDatas.Count > 0)
             {
                 IReadOnlyList<MoveData> movesList = newInputNode.MoveDatas;
@@ -119,11 +133,14 @@ public class MoveSelector
             index++;
             readInputs++;
         }
+        // Remove consumed inputs from the buffer
         RemoveBufferInputs(readInputs - 1);
     }
 
+    // Process held directional inputs (e.g. holding forward to walk/run)
     public void ReadHeldInputs()
     {
+        // During an attack chain: check if held inputs can extend the chain
         if (ActiveAttackNode != null)
         {
             if (heldInputsWhileAttack.Count == 0) return;
@@ -146,8 +163,10 @@ public class MoveSelector
                 Execute(true, newInputNode, input, executableMove);
             }
         }
+        // No attack active: process held inputs as movement
         else
         {
+            // Move queued attack-held inputs back to the regular held list
             if (heldInputsWhileAttack.Count > 0)
             {
                 heldInputs.AddRange(heldInputsWhileAttack);
@@ -163,6 +182,7 @@ public class MoveSelector
                 MoveNode newInputNode;
                 string inputType = DecideInputType(inputCommand);
 
+                // Try compound path with neutral input if one exists
                 if (ExistsPrevNeutralInput() && PrevNeutralInput != null)
                 {
                     newInputNode = GetNextNode(inputType, PrevNeutralInput.GetInputCommand());
@@ -188,17 +208,19 @@ public class MoveSelector
         }
     }
 
+    // When no move is active or only a fallback is playing, pick the appropriate idle/stance move
     public void FallbackMove()
     {
         if (ActiveMove == null || IsStateMove)
         {
-            // Clean up Sidestepping
+            // Clean up sidestepping state when it finishes
             if (stateManager.HasState(PlayerStates.Sidestepping))
             {
                 stateManager.RemoveState(PlayerStates.Sidestepping);
                 stateManager.AddState(PlayerStates.Idle);
             }
 
+            // Pick fallback based on current state priority
             MoveData move = null;
             if (stateManager.HasState(PlayerStates.Falling))
             {
@@ -224,6 +246,8 @@ public class MoveSelector
         }
     }
 
+    // Navigate to the next node in the appropriate tree (attack or movement)
+    // If a currentNode is provided, traverse from there; otherwise use the active node or root
     public MoveNode GetNextNode(string inputType, InputCommand inputCommand, MoveNode currentNode = null)
     {
         if (currentNode != null)
@@ -245,6 +269,7 @@ public class MoveSelector
         return movesDatabase.GetNextNode(inputCommand, ActiveMovementNode);
     }
 
+    // Tell MoveExecutor to start/change to the chosen move, track the input, set loop if needed
     public void Execute(bool isAttackNode, MoveNode newNode, InputObject input, MoveData move)
     {
         moveExecutor.SetCurrentMove(move, newNode, isAttackNode);
@@ -255,6 +280,7 @@ public class MoveSelector
         }
     }
 
+    // Set a fallback move - skip if the same fallback is already playing
     public void ExecuteFallback(MoveData move)
     {
         if (ActiveMove != null && move != null && move.Id == ActiveMove.Id)
@@ -262,11 +288,14 @@ public class MoveSelector
         moveExecutor.SetFallback(move);
     }
 
+    // Find the first move in the list that passes state and branchDelay checks
     public MoveData GetExecutableMove(IReadOnlyList<MoveData> moves)
     {
         foreach (MoveData move in moves)
         {
             bool canExecute = true;
+
+            // BranchDelay: if current move is past the branch window, this chain move can't execute
             if (FrameCounter != null && FrameCounter.GetFrameNumber() >= move.BranchDelay
                                      && move.BranchDelay != 0)
             {
@@ -274,6 +303,7 @@ public class MoveSelector
                 continue;
             }
 
+            // Check all required states - if any are blocked, this move can't execute
             foreach (PlayerStates state in move.RequiredStates)
             {
                 if (!stateManager.CanToggleState(state))
@@ -289,6 +319,7 @@ public class MoveSelector
         return null;
     }
 
+    // Convert raw Left/Right inputs to Forward/Backward based on which way the player is facing
     public void NormaliseInput(InputObject input)
     {
         InputCommand command = input.GetInputCommand();
@@ -297,6 +328,7 @@ public class MoveSelector
 
         if (facingDirection == facingRight)
         {
+            // Facing right: Right = Forward, Left = Backward
             switch (command)
             {
                 case InputCommand.Right:
@@ -317,6 +349,7 @@ public class MoveSelector
         }
         else
         {
+            // Facing left: Left = Forward, Right = Backward (reversed)
             switch (command)
             {
                 case InputCommand.Right:
@@ -336,6 +369,7 @@ public class MoveSelector
         }
     }
 
+    // Check if the previous neutral input is still in the buffer - if not, clear it
     public bool ExistsPrevNeutralInput()
     {
         if (PrevNeutralInput != null && !inputBuffer.Contains(PrevNeutralInput))
@@ -346,6 +380,7 @@ public class MoveSelector
         return true;
     }
 
+    // Add a held input to the appropriate list based on whether an attack is active
     public void AddHeldInput(InputObject heldInput)
     {
         NormaliseInput(heldInput);
@@ -353,12 +388,14 @@ public class MoveSelector
         else { heldInputsWhileAttack.Add(heldInput); }
     }
 
+    // Force-cancel the current move and clear all consumed inputs
     public void ClearActiveMove()
     {
         moveExecutor.CancelMove();
         activeInput.Clear();
     }
 
+    // Remove consumed inputs from the buffer (called after ReadBuffer processes them)
     public void RemoveBufferInputs(int index)
     {
         for (int i = index; i >= 0; i--)
@@ -367,6 +404,7 @@ public class MoveSelector
         }
     }
 
+    // Remove held inputs whose frame counter is -1 (key was released)
     public void UpdateHeldInputs()
     {
         for (int i = heldInputs.Count - 1; i >= 0; i--)

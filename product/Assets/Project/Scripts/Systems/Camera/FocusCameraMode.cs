@@ -1,15 +1,14 @@
 using UnityEngine;
 
+// Camera mode that follows one specific player, positioned relative to their facing direction
 public class FocusCameraMode : ICameraMode
 {
-    // Camera info
-    private bool focusOnPlayer1;                // Camera focus on p1 or p2
-    private Vector3 offset;                     // Relative to players forward direction
+    private bool focusOnPlayer1;     // True = follow P1, false = follow P2
+    private Vector3 offset;          // Position offset relative to the focused player's forward/right
     private float height;
-    private float aimHeight;
+    private float aimHeight;         // Height on the player to look at
     private float smoothSpeed;
 
-    // Local Trackers
     private Vector3 currentPosition;
     private Vector3 positionVelocity = Vector3.zero;
     private bool initialised = false;
@@ -33,7 +32,7 @@ public class FocusCameraMode : ICameraMode
 
     public void Update(CameraManager cameraManager)
     {
-        // Labels p1 and p2 based on camera focus
+        // Pick which player to focus on and which is the other
         Transform focus;
         Transform other;
 
@@ -48,23 +47,21 @@ public class FocusCameraMode : ICameraMode
             other = cameraManager.Player1;
         }
 
-        // Direction of focused player
         Vector3 forward = focus.forward;
         Vector3 right = focus.right;
 
-        // Calculate target position relative to focused player
+        // Build target position using the focused player's local axes
         Vector3 targetPosition = focus.position
             + (forward * offset.z)
             + (right * offset.x)
             + (Vector3.up * height);
 
-        // Frame 0 => Snap to position
+        // First frame: snap, subsequent frames: smooth
         if (!initialised)
         {
             currentPosition = targetPosition;
             initialised = true;
         }
-        // Frame 1+ => Apply smoothing
         else
         {
             currentPosition = Vector3.SmoothDamp(
@@ -75,11 +72,10 @@ public class FocusCameraMode : ICameraMode
             );
         }
 
-        // Apply new position
         Transform cam = cameraManager.CameraTransform;
         cam.position = currentPosition;
 
-        // Apply rotation
+        // Always look at the focused player at aim height
         Vector3 lookAtPoint = focus.position + (Vector3.up * aimHeight);
         cam.rotation = Quaternion.LookRotation(lookAtPoint - cam.position);
     }

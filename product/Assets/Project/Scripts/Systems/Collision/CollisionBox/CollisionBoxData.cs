@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+// JSON data for a collision box: standing/crouching sizes and offsets per bone
 [Serializable]
 public class CollisionBoxData : IIdentifiable
 {
@@ -9,7 +10,7 @@ public class CollisionBoxData : IIdentifiable
     [SerializeField] private Vector3 standingOffset;
     [SerializeField] private Vector3 crouchingSize;
     [SerializeField] private Vector3 crouchingOffset;
-    [SerializeField] private bool resetRotation;
+    [SerializeField] private bool resetRotation; // If true, ignore bone rotation for this box
 
     public string Id => id;
     public Vector3 StandingSize => standingSize;

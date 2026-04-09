@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Manages the game camera - holds player references and delegates to an ICameraMode for positioning
 public class CameraManager
 {
     private Camera camera;
@@ -22,6 +23,7 @@ public class CameraManager
         this.player2 = player2;
     }
 
+    // Switch to a new camera mode, exiting the old one first
     public void SetMode(ICameraMode newMode)
     {
         if (activeMode != null)
@@ -37,6 +39,7 @@ public class CameraManager
         SetMode(defaultMode);
     }
 
+    // Called every render frame - falls back to default mode if none is set
     public void Update()
     {
         if (activeMode == null)

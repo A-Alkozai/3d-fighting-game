@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Central game loop - owns all core systems, runs the fixed timestep update, manages match flow
 public class GameManager : MonoBehaviour
 {
     [SerializeField] UIManager uiManager;
@@ -27,20 +28,21 @@ public class GameManager : MonoBehaviour
     private InputKeys inputKeys;
 
     private int gameFPS = 60;
-    private float logicTimer = 0f;
-    private float logicDeltaTime = 1f / 60f;
-    private bool gameActive = false;
-    private bool koReported = false;
-    private bool initialized = false;
+    private float logicTimer = 0f;               // Accumulator for fixed timestep
+    private float logicDeltaTime = 1f / 60f;     // One logic frame = 1/60th of a second
+    private bool gameActive = false;              // Gates the entire Update loop
+    private bool koReported = false;              // Prevents reporting the same KO twice in one round
+    private bool initialized = false;             // True after first-time system setup
 
-    private RoundManager.MatchState prevState;
+    private RoundManager.MatchState prevState;    // Tracks state transitions for HandleStateTransitions
 
+    // Called by MainMenuManager - sets up systems on first call, resets for a new match every call
     public void StartGame(InputKeys inputKeys, int roundsToWin)
     {
         this.inputKeys = inputKeys;
         Application.targetFrameRate = gameFPS;
 
-        // Only initialize systems once
+        // First-time setup: create input, players, camera, stage collision, UI refs
         if (!initialized)
         {
             inputProvider1 = new LocalInputProvider(inputKeys);
@@ -62,65 +64,73 @@ public class GameManager : MonoBehaviour
             initialized = true;
         }
 
-        // Reset players for fresh match
+        // Reset players to starting state
         player1.ResetForRound();
         player2.ResetForRound();
 
-        // Create fresh combat/collision systems each match
+        // Fresh combat and collision systems each match (clears hit tracking)
         combatExecutor = new CombatExecutor();
         collisionManager = new CollisionManager(player1, player2, combatExecutor, stageCollision);
 
-        // Create fresh round manager
+        // Fresh round manager with chosen rounds-to-win
         roundManager = new RoundManager(roundsToWin);
         roundHUD.Initialise(roundsToWin);
         roundHUD.ClearCenterText();
         roundManager.StartMatch();
 
-        // Lock input during countdown
+        // Lock both players during the opening countdown
         player1.SetInputLocked(true);
         player2.SetInputLocked(true);
 
-        // Reset game state
+        // Reset match-level flags
         gameActive = true;
         koReported = false;
         logicTimer = 0f;
         prevState = RoundManager.MatchState.Countdown;
 
-        Debug.Log($"[GameManager] Match started — First to {roundsToWin}");
+        Debug.Log($"[GameManager] Match started - First to {roundsToWin}");
     }
 
     void Update()
     {
         if (!gameActive) return;
 
+        // Poll input every visual frame (before fixed steps)
         inputManager.update();
 
+        // Fixed timestep loop - all game logic runs at exactly 60fps
         while (logicTimer >= logicDeltaTime)
         {
             logicTimer -= logicDeltaTime;
 
+            // Round state machine (countdown, fighting, KO pause, etc.)
             roundManager.Update();
             HandleStateTransitions();
 
+            // If match-over timer expired, go back to menu
             if (roundManager.MatchOverTimerDone)
             {
                 ReturnToMenu();
                 return;
             }
 
+            // Core gameplay: players then collision
             player1.update();
             player2.update();
             collisionManager.Update();
 
+            // Check if either player just got KO'd this frame
             CheckKO();
         }
 
+        // Visual updates run every render frame (not fixed)
         UpdateHUD();
         uiManager.update();
         cameraManager.Update();
         logicTimer += Time.deltaTime;
     }
 
+    // Detect when RoundManager changes state and apply side effects (lock input, reset players, etc.)
     private void HandleStateTransitions()
     {
         RoundManager.MatchState currentState = roundManager.State;
@@ -130,6 +140,7 @@ public class GameManager : MonoBehaviour
             switch (currentState)
             {
                 case RoundManager.MatchState.Fighting:
+                    // Unlock players when the fight begins
                     player1.SetInputLocked(false);
                     player2.SetInputLocked(false);
                     koReported = false;
@@ -137,11 +148,13 @@ public class GameManager : MonoBehaviour
                     break;
 
                 case RoundManager.MatchState.KOPause:
+                    // Lock input while showing the KO
                     player1.SetInputLocked(true);
                     player2.SetInputLocked(true);
                     break;
 
                 case RoundManager.MatchState.RoundReset:
+                    // Reset players to starting positions and health for the next round
                     player1.ResetForRound();
                     player2.ResetForRound();
                     player1.SetInputLocked(true);
@@ -152,11 +165,13 @@ public class GameManager : MonoBehaviour
                     break;
 
                 case RoundManager.MatchState.Countdown:
+                    // Keep players locked during countdown
                     player1.SetInputLocked(true);
                     player2.SetInputLocked(true);
                     break;
 
                 case RoundManager.MatchState.MatchOver:
+                    // Lock input and show final win tally
                     player1.SetInputLocked(true);
                     player2.SetInputLocked(true);
                     roundHUD.UpdateWins(roundManager.P1Wins, roundManager.P2Wins);
@@ -167,6 +182,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Report the first KO detected this round to the RoundManager
     private void CheckKO()
     {
         if (roundManager.State != RoundManager.MatchState.Fighting) return;
@@ -184,6 +200,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Push current health values and round state text to the HUD every render frame
     private void UpdateHUD()
     {
         healthBarP1.UpdateHealth(player1.GetHealthManager().CurrentHealth,
@@ -204,6 +221,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // End the match, reset everything, and hand control back to the main menu
     private void ReturnToMenu()
     {
         gameActive = false;

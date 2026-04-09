@@ -1,12 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Manages all collision boxes and the body collider for one player
+// Handles crouching transitions and hitbox activation/deactivation
 public class CollisionBoxManager
 {
     private CollisionBoxDatabase collisionBoxDatabase;
     private BodyColliderDatabase bodyColliderDatabase;
     private StateManager stateManager;
-    private bool isCrouching = false;
+    private bool isCrouching = false; // Tracks current stance to detect transitions
 
     public CollisionBoxManager(StateManager stateManager)
     {
@@ -15,6 +17,7 @@ public class CollisionBoxManager
         bodyColliderDatabase = new BodyColliderDatabase();
     }
 
+    // Load JSON data and create all collision objects on the player's bones
     public void Load(Transform body, Dictionary<string, Transform> bones)
     {
         collisionBoxDatabase.ReadJson();
@@ -24,6 +27,7 @@ public class CollisionBoxManager
         bodyColliderDatabase.Initialise(body);
     }
 
+    // Check if crouch state changed and switch all boxes between standing/crouching sizes
     public void Update()
     {
         bool currentlyCrouching = stateManager.HasState(PlayerStates.Crouching);
@@ -42,12 +46,14 @@ public class CollisionBoxManager
         }
     }
 
+    // Activate a specific hitbox by bone ID (default size)
     public void ActivateHitbox(string id)
     {
         CollisionBox box = collisionBoxDatabase.GetCollisionBox(id);
         if (box != null) box.ActivateHitbox();
     }
 
+    // Activate a specific hitbox with a combat-defined size multiplier
     public void ActivateHitbox(string id, float sizeMultiplier)
     {
         CollisionBox box = collisionBoxDatabase.GetCollisionBox(id);
@@ -60,6 +66,7 @@ public class CollisionBoxManager
         if (box != null) box.DeactivateHitbox();
     }
 
+    // Turn off all hitboxes (used when a move ends or is cancelled)
     public void DeactivateAllHitboxes()
     {
         foreach (CollisionBox box in collisionBoxDatabase.GetAllCollisionBoxes().Values)
@@ -68,6 +75,7 @@ public class CollisionBoxManager
         }
     }
 
+    // Return only the hitboxes that are currently enabled (mid-attack)
     public List<CollisionBox> GetActiveHitboxes()
     {
         List<CollisionBox> active = new List<CollisionBox>();
@@ -78,6 +86,7 @@ public class CollisionBoxManager
         return active;
     }
 
+    // Return all hurtboxes (always active, used for receiving hits)
     public IEnumerable<CollisionBox> GetAllHurtboxes()
     {
         return collisionBoxDatabase.GetAllCollisionBoxes().Values;
@@ -93,6 +102,7 @@ public class CollisionBoxManager
         return collisionBoxDatabase.GetCollisionBox(id);
     }
 
+    // Draw all collision volumes as wireframe cubes in the editor
     public void OnDrawGizmos()
     {
         BodyCollider body = bodyColliderDatabase?.GetBodyCollider();

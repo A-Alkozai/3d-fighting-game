@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Loads collision box data from JSON and creates runtime CollisionBox instances for each bone
 public class CollisionBoxDatabase : BaseDatabase<CollisionBoxData>
 {
     private Dictionary<string, CollisionBox> collisionBoxes = new Dictionary<string, CollisionBox>();
@@ -10,6 +11,7 @@ public class CollisionBoxDatabase : BaseDatabase<CollisionBoxData>
         filePath = "Assets/Project/Data/Characters/Player1/collisions.json";
     }
 
+    // Create a CollisionBox for each bone that has matching data in the JSON
     public void Initialise(Dictionary<string, Transform> bones)
     {
         foreach (var pair in bones)

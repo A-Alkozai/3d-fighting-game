@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Holds references to all UI components and provides getters for other systems
 public class UIManager : MonoBehaviour
 {
     [SerializeField] private RecentInputsUI recentInputsUI;
@@ -14,6 +15,7 @@ public class UIManager : MonoBehaviour
         recentInputsUI.SetActive(isActiveRecentInputsUI);
     }
 
+    // Called every frame from GameManager - keeps debug input UI visibility in sync
     public void update()
     {
         recentInputsUI.SetActive(isActiveRecentInputsUI);

@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Tracks a player's health, handles damage and KO detection
 public class HealthManager
 {
     private int maxHealth;
@@ -10,12 +11,14 @@ public class HealthManager
     public int CurrentHealth => currentHealth;
     public bool IsDead => isDead;
 
+    // Set max health and start at full
     public HealthManager(int maxHealth)
     {
         this.maxHealth = maxHealth;
         this.currentHealth = maxHealth;
     }
 
+    // Subtract damage from current health, trigger KO if health hits 0
     public void TakeDamage(int damage)
     {
         if (isDead) return;
@@ -31,12 +34,14 @@ public class HealthManager
         }
     }
 
+    // Restore to full health and clear KO flag (used between rounds)
     public void Reset()
     {
         currentHealth = maxHealth;
         isDead = false;
     }
 
+    // Returns health as a 0-1 float for UI fill bars
     public float GetHealthPercentage()
     {
         return (float)currentHealth / maxHealth;

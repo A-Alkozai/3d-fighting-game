@@ -1,3 +1,5 @@
+// All possible input commands - includes raw directional (Left/Right), normalised (Forward/Backward),
+// held variants (LeftHold, ForwardHold), and action buttons
 public enum InputCommand
 {
     Left,
@@ -5,9 +7,9 @@ public enum InputCommand
     Right,
     RightHold,
 
-    Forward,
+    Forward,       // Normalised: towards opponent
     ForwardHold,
-    Backward,
+    Backward,      // Normalised: away from opponent
     BackwardHold,
     Up,
     UpHold,

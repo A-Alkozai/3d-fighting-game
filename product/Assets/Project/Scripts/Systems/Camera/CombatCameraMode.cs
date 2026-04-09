@@ -1,31 +1,32 @@
 using UnityEngine;
 
+// Default camera mode - positions camera to the side of both players, tracking their midpoint
 public class CombatCameraMode : ICameraMode
 {
-    // Camera distance from players
+    // How far the camera sits from the players
     private float minDistance = 2.5f;
     private float maxDistance = 6f;
     private float distanceMultiplier = 1.2f;
 
-    // Camera info
-    private float height = 1.15f;
-    private float targetHeight = 1.0f;
-    private float cameraSide = -1f;
+    // Camera vertical positioning
+    private float height = 1.15f;          // Camera height offset above midpoint
+    private float targetHeight = 1.0f;     // Height the camera looks at (slightly lower than camera)
+    private float cameraSide = -1f;        // Which side of the fight line the camera sits on
 
-    // Smoothing times (higher = smoother)
+    // Smoothing speeds (higher smoothTime = slower/smoother transitions)
     private float zoomSmoothTime = 0.5f;
     private float rotationSmoothSpeed = 5f;
     private float directionSmoothTime = 0.5f;
     private float midpointSmoothTime = 0.3f;
 
-    // Local Trackers
+    // Internal tracking values
     private bool initialised = false;
     private float currentDistance;
     private Vector3 currentDirection;
     private Vector3 currentMidpoint;
-    private Vector3 lockedDirection;
+    private Vector3 lockedDirection;       // Prevents camera flipping when players cross sides
 
-    // Camera Velocity (for SmoothDamp)
+    // SmoothDamp velocity refs (required by Unity's SmoothDamp, not manually set)
     private float distanceVelocity = 0f;
     private Vector3 directionVelocity = Vector3.zero;
     private Vector3 midpointVelocity = Vector3.zero;
@@ -43,31 +44,31 @@ public class CombatCameraMode : ICameraMode
         Transform p2 = cameraManager.Player2;
         Transform cam = cameraManager.CameraTransform;
 
-        // Raw values
+        // Calculate the point between both players and the line connecting them
         Vector3 midpoint = (p1.position + p2.position) / 2f;
         Vector3 fightDirection = (p2.position - p1.position);
         float playerDistance = fightDirection.magnitude;
         fightDirection.Normalize();
 
-        // Target distance
-        float targetDistance = Mathf.Clamp(             // Clamp ensures value is between min and max
+        // Camera distance scales with player separation, clamped to min/max
+        float targetDistance = Mathf.Clamp(
             playerDistance * distanceMultiplier,
             minDistance,
             maxDistance
         );
 
-        // Target direction
-        Vector3 targetDirection = Vector3.Cross(        // Gives perpendicular horizontal vector of p1 => p2
+        // Camera sits perpendicular to the line between players
+        Vector3 targetDirection = Vector3.Cross(
             fightDirection, Vector3.up).normalized;
-        targetDirection *= cameraSide;                  // Camera side determines vector direction
+        targetDirection *= cameraSide;
 
-        // Prevent camera flip when players cross
+        // If players cross each other, keep the camera on the same side to avoid flipping
         if (initialised && Vector3.Dot(targetDirection, lockedDirection) < 0f)
         {
             targetDirection = -targetDirection;
         }
 
-        // Frame 0 => no smoothing
+        // First frame: snap to target values with no smoothing
         if (!initialised)
         {
             currentMidpoint = midpoint;
@@ -76,10 +77,9 @@ public class CombatCameraMode : ICameraMode
             lockedDirection = targetDirection;
             initialised = true;
         }
-        // Frame 1+ => Apply smoothing
+        // Subsequent frames: smooth all values for fluid camera movement
         else
         {
-            // Midpoint => when players move
             currentMidpoint = Vector3.SmoothDamp(
                 currentMidpoint,
                 midpoint,
@@ -87,7 +87,6 @@ public class CombatCameraMode : ICameraMode
                 midpointSmoothTime
             );
 
-            // Camera Distance => When players move
             currentDistance = Mathf.SmoothDamp(
                 currentDistance,
                 targetDistance,
@@ -95,7 +94,6 @@ public class CombatCameraMode : ICameraMode
                 zoomSmoothTime
             );
 
-            // Camera Direction => When players rotate
             currentDirection = Vector3.SmoothDamp(
                 currentDirection,
                 targetDirection,
@@ -105,20 +103,20 @@ public class CombatCameraMode : ICameraMode
             currentDirection.Normalize();
         }
 
-        // Apply final position
+        // Position the camera: midpoint + offset in perpendicular direction + height
         cam.position = currentMidpoint
             + (currentDirection * currentDistance)
             + (Vector3.up * height);
 
-        // Apply final rotation
-        Vector3 lookAtPoint = currentMidpoint + (Vector3.up * targetHeight);       // Vector of targetHeight from midpoint
-        Vector3 lookDirection = lookAtPoint - cam.position;                        // Vector direction of camera => lookAtPoint
+        // Rotate camera to look at the midpoint (at target height)
+        Vector3 lookAtPoint = currentMidpoint + (Vector3.up * targetHeight);
+        Vector3 lookDirection = lookAtPoint - cam.position;
 
-        Quaternion targetRotation = Quaternion.LookRotation(lookDirection);        // Gives rotation that faces lookDirection
+        Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
         cam.rotation = Quaternion.Slerp(
-            cam.rotation,                                                          // Where camera is facing
-            targetRotation,                                                        // Where camera should face
-            rotationSmoothSpeed * Time.deltaTime                                   // How much to blend (0.0 - 1.0)
+            cam.rotation,
+            targetRotation,
+            rotationSmoothSpeed * Time.deltaTime
         );
     }
 }

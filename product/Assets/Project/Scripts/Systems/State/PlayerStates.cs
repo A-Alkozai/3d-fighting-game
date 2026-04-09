@@ -1,21 +1,28 @@
 using System;
 
+// Bitmask enum for all possible player states - multiple states can be active at once
+// Using flags allows combining states (e.g. Idle | StandGuarding) and checking with bitwise AND
 [Flags]
 public enum PlayerStates
 {
     None            = 0,
+
+    // Base stance states
     Idle            = 1 << 0,
     Crouching       = 1 << 1,
     Lying           = 1 << 2,
     
+    // Vertical position
     Grounded        = 1 << 3,
     Airborne        = 1 << 4,
     
+    // Ground orientation (for knockdowns)
     FaceDown        = 1 << 5,
     FaceUp          = 1 << 6,
     HeadFirst       = 1 << 7,
     FeetFirst       = 1 << 8,
 
+    // Movement states
     Walking         = 1 << 9,
     Dashing         = 1 << 10,
     Running         = 1 << 11,
@@ -26,10 +33,12 @@ public enum PlayerStates
     Sidestepping    = 1 << 16,
     Rolling         = 1 << 17,
 
+    // Action states
     Attacking       = 1 << 18,
     StandGuarding   = 1 << 19,
     CrouchGuarding  = 1 << 20,
 
+    // Status states
     Recovery        = 1 << 21,
     Immunity        = 1 << 22,  
     Stunned         = 1 << 23,

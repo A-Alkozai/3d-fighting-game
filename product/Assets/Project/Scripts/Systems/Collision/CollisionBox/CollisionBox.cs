@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// A single collision box attached to a bone - has a hurtbox (always active) and a hitbox (toggled on during attacks)
 public class CollisionBox
 {
     private string id;
@@ -21,6 +22,7 @@ public class CollisionBox
         InitialiseHitbox(bone);
     }
 
+    // Create the hurtbox child object - always active, used to receive hits
     public void InitialiseHurtbox(Transform bone)
     {
         hurtboxObject = new GameObject(id + "_Hurtbox");
@@ -36,6 +38,7 @@ public class CollisionBox
         hurtboxCollider.isTrigger = true;
     }
 
+    // Create the hitbox child object - starts disabled, activated during attack phases
     public void InitialiseHitbox(Transform bone)
     {
         hitboxObject = new GameObject(id + "_Hitbox");
@@ -52,6 +55,7 @@ public class CollisionBox
         hitboxObject.SetActive(false);
     }
 
+    // Switch to standing collision sizes and offsets
     public void SetStanding()
     {
         hurtboxObject.transform.localPosition = data.StandingOffset;
@@ -60,6 +64,7 @@ public class CollisionBox
         hitboxCollider.size = data.StandingSize;
     }
 
+    // Switch to crouching collision sizes and offsets (smaller/lower)
     public void SetCrouching()
     {
         hurtboxObject.transform.localPosition = data.CrouchingOffset;
@@ -68,11 +73,13 @@ public class CollisionBox
         hitboxCollider.size = data.CrouchingSize;
     }
 
+    // Enable the hitbox at its default size
     public void ActivateHitbox()
     {
         hitboxObject.SetActive(true);
     }
 
+    // Enable the hitbox with a size multiplier (from CombatHitboxEntry)
     public void ActivateHitbox(float sizeMultiplier)
     {
         hitboxObject.SetActive(true);
@@ -104,6 +111,7 @@ public class CollisionBox
         return hurtboxCollider.bounds;
     }
 
+    // Draw wireframe boxes in the editor for debugging collision volumes
     public void DrawGizmos()
     {
         if (hurtboxObject != null && hurtboxObject.activeSelf)

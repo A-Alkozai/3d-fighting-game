@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// The main player class - implements ICollidable for the collision system
+// Owns all per-player managers and runs the per-frame update pipeline
 public class Player : MonoBehaviour, ICollidable
 {
     [Header("Bone References")]
@@ -27,6 +29,7 @@ public class Player : MonoBehaviour, ICollidable
     [Header("Player Settings")]
     [SerializeField] private int playerId;
 
+    // Per-player systems
     private InputBuffer inputBuffer = new InputBuffer();
     private MovesManager movesManager = new MovesManager();
     private StateManager stateManager = new StateManager();
@@ -38,17 +41,20 @@ public class Player : MonoBehaviour, ICollidable
     private MoveSelector moveSelector;
     private MoveExecutor moveExecutor;
 
+    // Hit reaction state
     private int stunTimer = 0;
     private bool isStunned = false;
     private bool isKO = false;
-    private bool koFalling = false;
-    private int koFallTimer = 0;
-    private bool inputLocked = false;
-    private Vector3 spawnPosition;
+    private bool koFalling = false;       // True during the falling-ko animation
+    private int koFallTimer = 0;          // Frames remaining in the fall animation
+    private bool inputLocked = false;     // Set by GameManager during countdown/KO
+    private Vector3 spawnPosition;        // Saved on start() for round resets
     private Quaternion spawnRotation;
 
     public int PlayerId => playerId;
     public bool IsKO => isKO;
+
+    // --- ICollidable implementation ---
 
     public List<CollisionBox> GetActiveHitboxes()
     {
@@ -80,6 +86,7 @@ public class Player : MonoBehaviour, ICollidable
         return transform;
     }
 
+    // Return combat data for the current move (null if no attack is active)
     public CombatData GetCombatData()
     {
         MoveData currentMove = moveExecutor.CurrentMove;
@@ -92,11 +99,13 @@ public class Player : MonoBehaviour, ICollidable
         return stateManager.HasState(state);
     }
 
+    // Lock/unlock input (used during countdown, KO pause, etc.)
     public void SetInputLocked(bool locked)
     {
         inputLocked = locked;
     }
 
+    // Called by CombatExecutor when this player gets hit - apply damage, stun, or KO
     public void ReceiveCombatResult(CombatResult result)
     {
         if (result.Outcome == HitOutcome.Whiff) return;
@@ -109,6 +118,7 @@ public class Player : MonoBehaviour, ICollidable
             return;
         }
 
+        // Apply stun frames (both blocked and normal hits use block-flinch animation for now)
         if (result.StunFrames > 0)
         {
             if (result.Outcome == HitOutcome.Blocked)
@@ -126,6 +136,7 @@ public class Player : MonoBehaviour, ICollidable
                 $"HP: {healthManager.CurrentHealth}");
     }
 
+    // Trigger KO state: cancel current move, play falling animation, then loop KO animation
     private void EnterKO()
     {
         if (moveExecutor.CurrentMove != null)
@@ -147,6 +158,7 @@ public class Player : MonoBehaviour, ICollidable
         Debug.Log($"[Player P{playerId}] KO!");
     }
 
+    // Enter stun: cancel move, play stun animation, count down frames
     private void EnterStun(int frames, string animationId)
     {
         if (moveExecutor.CurrentMove != null)
@@ -165,6 +177,7 @@ public class Player : MonoBehaviour, ICollidable
         Debug.Log($"[Player P{playerId}] Entering stun for {frames} frames ({animationId})");
     }
 
+    // Exit stun: return to Idle state
     private void ExitStun()
     {
         isStunned = false;
@@ -196,39 +209,47 @@ public class Player : MonoBehaviour, ICollidable
         return healthManager;
     }
 
+    // Manual initialisation (called by GameManager, not Unity's Start)
     public void start()
     {
-        // Store spawn position
+        // Save spawn position for round resets
         spawnPosition = transform.position;
         spawnRotation = transform.rotation;
 
+        // Create all per-player systems
         animationManager = new AnimationManager(animationExecutor);
         movementManager = new MovementManager(movementExecutor);
         moveExecutor = new MoveExecutor(stateManager, animationManager, movementManager);
         moveSelector = new MoveSelector(inputBuffer, movesManager.GetMovesDatabase(),
                                         stateManager, moveExecutor);
 
+        // Start in Idle state
         stateManager.AddState(PlayerStates.Idle);
+
+        // Load all JSON data
         animationManager.LoadAnimations();
         movesManager.LoadMoves(animationManager.GetAnimationDatabase());
         movementManager.LoadMovements();
+
+        // Create collision boxes on bones and body collider
         collisionBoxManager = new CollisionBoxManager(stateManager);
         collisionBoxManager.Load(body, GetBones());
+
+        // Create combat manager and load combat data
         combatManager = new CombatManager(moveExecutor, collisionBoxManager);
         combatManager.LoadCombat();
+
         healthManager = new HealthManager(100);
     }
 
+    // Reset everything for a new round - position, health, states, moves, hitboxes
     public void ResetForRound()
     {
-        // Reset position
         transform.position = spawnPosition;
         transform.rotation = spawnRotation;
 
-        // Reset health
         healthManager.Reset();
 
-        // Reset states
         isKO = false;
         koFalling = false;
         koFallTimer = 0;
@@ -236,30 +257,27 @@ public class Player : MonoBehaviour, ICollidable
         stunTimer = 0;
         inputLocked = false;
 
-        // Reset move system
         if (moveExecutor.CurrentMove != null)
         {
             moveExecutor.CancelMove();
         }
 
-        // Reset state manager
         stateManager.ResetState();
         stateManager.AddState(PlayerStates.Idle);
 
-        // Clear input buffer
         inputBuffer.Clear();
 
-        // Reset combat manager hitboxes
         combatManager.DeactivateAll();
 
-        // Play idle animation
         animationManager.PlayAnimation("idle");
 
         Debug.Log($"[Player P{playerId}] Reset for new round");
     }
 
+    // Main per-frame update - called by GameManager inside the fixed timestep loop
     public void update()
     {
+        // KO: count down fall animation, then switch to KO loop
         if (isKO)
         {
             if (koFalling)
@@ -271,9 +289,10 @@ public class Player : MonoBehaviour, ICollidable
                     animationManager.PlayAnimation("ko");
                 }
             }
-            return;
+            return; // No other updates during KO
         }
 
+        // Stunned: count down stun timer, then exit stun
         if (isStunned)
         {
             stunTimer--;
@@ -281,27 +300,28 @@ public class Player : MonoBehaviour, ICollidable
             {
                 ExitStun();
             }
-            return;
+            return; // No other updates during stun
         }
 
+        // Input locked (countdown, etc.): only run fallback move so idle animation plays
         if (inputLocked)
         {
-            // Still run fallback so idle animation plays
             moveSelector.FallbackMove();
             moveExecutor.Update();
             return;
         }
 
-        // Normal update
-        moveSelector.Update();
-        moveExecutor.Update();
-        combatManager.Update();
-        movementExecutor.update(moveExecutor.FrameCounter);
-        collisionBoxManager.Update();
-        inputBuffer.UpdateFrameCounter();
-        inputBuffer.RemoveExpiredInputs();
+        // Normal update pipeline
+        moveSelector.Update();           // Read inputs, pick moves
+        moveExecutor.Update();           // Advance current move, play animations
+        combatManager.Update();          // Activate/deactivate hitboxes per frame
+        movementExecutor.update(moveExecutor.FrameCounter);  // Apply movement velocity
+        collisionBoxManager.Update();    // Handle standing/crouching collision transitions
+        inputBuffer.UpdateFrameCounter();// Age all buffered inputs
+        inputBuffer.RemoveExpiredInputs();// Clean up old inputs
     }
 
+    // Build a dictionary mapping bone names to their transforms (used by CollisionBoxDatabase)
     private Dictionary<string, Transform> GetBones()
     {
         return new Dictionary<string, Transform>
@@ -323,6 +343,7 @@ public class Player : MonoBehaviour, ICollidable
         };
     }
 
+    // Draw collision boxes in the editor scene view for debugging
     void OnDrawGizmos()
     {
         if (collisionBoxManager != null)

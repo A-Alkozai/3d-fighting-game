@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Low-level animation player - uses Animator with an override controller to crossfade clips
 public class AnimationExecutor : MonoBehaviour
 {
     private Animator animator;
@@ -13,6 +14,7 @@ public class AnimationExecutor : MonoBehaviour
         animator.runtimeAnimatorController = overrideController;
     }
 
+    // Crossfade to a new clip if it's different from the current one
     public void PlayAnimation(string clipName, float speed, float crossfade = 0.1f)
     {
         if (currentAnimation != clipName)
@@ -23,6 +25,7 @@ public class AnimationExecutor : MonoBehaviour
         }
     }
 
+    // Search all clips on the animator to find the length of a clip by name
     public float GetClipLength(string clipName)
     {
         AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;

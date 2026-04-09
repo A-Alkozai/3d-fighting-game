@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using TMPro;
 
+// A single row in the controls menu - shows one action and its bound key, with a rebind button
 public class ControlBindingRow : MonoBehaviour
 {
     [SerializeField] private TMP_Text actionLabel;
@@ -12,6 +13,7 @@ public class ControlBindingRow : MonoBehaviour
     private InputCommand command;
     private ControlsPanel controlsPanel;
 
+    // Set up the row with its command, current key, and parent panel reference
     public void Initialise(InputCommand command, Key currentKey, ControlsPanel panel)
     {
         this.command = command;
@@ -22,11 +24,13 @@ public class ControlBindingRow : MonoBehaviour
         rebindButton.onClick.AddListener(OnRebindClicked);
     }
 
+    // Tell the controls panel this row wants to rebind
     private void OnRebindClicked()
     {
         controlsPanel.OnRebindRequested(this, command);
     }
 
+    // Toggle visual feedback when waiting for a key press
     public void SetListening(bool listening)
     {
         if (listening)
@@ -40,6 +44,7 @@ public class ControlBindingRow : MonoBehaviour
         }
     }
 
+    // Update the displayed key after a successful rebind
     public void UpdateKey(Key newKey)
     {
         keyLabel.text = FormatKeyName(newKey);
@@ -50,6 +55,7 @@ public class ControlBindingRow : MonoBehaviour
         return command;
     }
 
+    // Convert enum names to readable labels for the UI
     private string FormatCommandName(InputCommand cmd)
     {
         switch (cmd)
@@ -67,6 +73,7 @@ public class ControlBindingRow : MonoBehaviour
         }
     }
 
+    // Strip the "Key." prefix for cleaner display
     private string FormatKeyName(Key key)
     {
         return key.ToString().Replace("Key.", "");

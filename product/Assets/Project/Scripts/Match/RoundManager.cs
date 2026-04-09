@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// State machine that manages round flow: countdown → fighting → KO → next round or match over
 public class RoundManager
 {
     public enum MatchState
@@ -17,15 +18,16 @@ public class RoundManager
     private int p1Wins = 0;
     private int p2Wins = 0;
     private MatchState state = MatchState.WaitingToStart;
-    private int stateTimer = 0;
+    private int stateTimer = 0;                  // Frame counter within the current state
 
-    private int countdownDuration = 180;
-    private int fightFlashDuration = 60;
-    private int koPauseDuration = 180;
-    private int resetDuration = 60;
-    private int matchOverDuration = 300; // 5 seconds at 60fps
+    // Duration constants (in frames at 60fps)
+    private int countdownDuration = 180;         // 3 seconds for 3-2-1
+    private int fightFlashDuration = 60;         // 1 second to show "FIGHT!"
+    private int koPauseDuration = 180;           // 3 seconds to show KO before transitioning
+    private int resetDuration = 60;              // 1 second pause between rounds
+    private int matchOverDuration = 300;         // 5 seconds to show winner before returning to menu
 
-    private int countdownPhase = 0;
+    private int countdownPhase = 0;              // 3, 2, 1, -1 (FIGHT!), 0 (done)
     private bool matchOverTimerDone = false;
 
     public MatchState State => state;
@@ -42,6 +44,7 @@ public class RoundManager
         this.roundsToWin = roundsToWin;
     }
 
+    // Reset all round/win tracking and start the first countdown
     public void StartMatch()
     {
         currentRound = 1;
@@ -51,6 +54,7 @@ public class RoundManager
         BeginCountdown();
     }
 
+    // Enter countdown state and reset its timer
     public void BeginCountdown()
     {
         state = MatchState.Countdown;
@@ -58,6 +62,7 @@ public class RoundManager
         countdownPhase = 3;
     }
 
+    // Called once per logic frame - advances whichever state is active
     public void Update()
     {
         switch (state)
@@ -67,6 +72,7 @@ public class RoundManager
                 break;
 
             case MatchState.Fighting:
+                // Nothing to tick - gameplay is handled by Player/CollisionManager
                 break;
 
             case MatchState.KOPause:
@@ -83,11 +89,12 @@ public class RoundManager
         }
     }
 
+    // Tick through 3-2-1 countdown, then flash "FIGHT!", then enter Fighting state
     private void UpdateCountdown()
     {
         stateTimer++;
 
-        int framesPerNumber = countdownDuration / 3;
+        int framesPerNumber = countdownDuration / 3; // Each number gets equal screen time
 
         if (stateTimer <= framesPerNumber)
         {
@@ -103,7 +110,7 @@ public class RoundManager
         }
         else if (stateTimer <= countdownDuration + fightFlashDuration)
         {
-            countdownPhase = -1;
+            countdownPhase = -1; // -1 signals "FIGHT!" text
         }
         else
         {
@@ -113,10 +120,12 @@ public class RoundManager
         }
     }
 
+    // Called by GameManager when a player's health hits 0
     public void OnPlayerKO(int loserPlayerId)
     {
         if (state != MatchState.Fighting) return;
 
+        // Award win to the other player
         if (loserPlayerId == 1)
             p2Wins++;
         else
@@ -128,12 +137,14 @@ public class RoundManager
         Debug.Log($"[RoundManager] KO! P1 Wins: {p1Wins} | P2 Wins: {p2Wins}");
     }
 
+    // Wait after KO, then either end the match or start the next round
     private void UpdateKOPause()
     {
         stateTimer++;
 
         if (stateTimer >= koPauseDuration)
         {
+            // Check if either player has won enough rounds
             if (p1Wins >= roundsToWin || p2Wins >= roundsToWin)
             {
                 state = MatchState.MatchOver;
@@ -142,6 +153,7 @@ public class RoundManager
             }
             else
             {
+                // More rounds to play
                 state = MatchState.RoundReset;
                 stateTimer = 0;
                 currentRound++;
@@ -149,6 +161,7 @@ public class RoundManager
         }
     }
 
+    // Brief pause before starting the next round's countdown
     private void UpdateRoundReset()
     {
         stateTimer++;
@@ -159,6 +172,7 @@ public class RoundManager
         }
     }
 
+    // Show the winner for a few seconds, then signal to return to menu
     private void UpdateMatchOver()
     {
         stateTimer++;
@@ -170,6 +184,7 @@ public class RoundManager
         }
     }
 
+    // Returns 1 or 2 for the winner, 0 if no one has won yet
     public int GetMatchWinner()
     {
         if (p1Wins >= roundsToWin) return 1;
@@ -177,6 +192,7 @@ public class RoundManager
         return 0;
     }
 
+    // Returns the string to show in the center of the screen during countdown
     public string GetCountdownText()
     {
         if (countdownPhase > 0) return countdownPhase.ToString();
@@ -184,6 +200,7 @@ public class RoundManager
         return "";
     }
 
+    // Returns the string to show during KO pause or match over
     public string GetKOText()
     {
         if (state == MatchState.KOPause) return "KO";

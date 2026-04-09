@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+// JSON data for the body collider: size, position offset, and center
 [Serializable]
 public class BodyColliderData : IIdentifiable
 {

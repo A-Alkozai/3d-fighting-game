@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Receives hit collision data and forwards it to the combat executor for damage/outcome processing
 public class HitCollisionExecutor : ICollisionExecutor<HitCollisionData>
 {
     private CombatExecutor combatExecutor;

@@ -3,13 +3,18 @@ using UnityEngine.InputSystem;
 using System;
 using System.Collections.Generic;
 
+// Reads keyboard input each frame and produces InputObjects with tap/hold detection for directional keys
 public class LocalInputProvider : IInputProvider
 {
     private InputKeys inputKeys;
-    private int holdThreshold = 10;
+    private int holdThreshold = 10; // Frames before a directional press becomes a "hold"
+
+    // Tracks how many frames each directional key has been held
     private Dictionary<InputCommand, int> canHoldInput = new Dictionary<InputCommand, int>
         { {InputCommand.Up, 0}, {InputCommand.Down, 0},
           {InputCommand.Left, 0}, {InputCommand.Right, 0}};
+
+    // Stores the InputObject for directional keys currently being held down
     private Dictionary<InputCommand, InputObject> heldDownInputs = new Dictionary<InputCommand, InputObject>();
 
     public LocalInputProvider(InputKeys inputKeys)
@@ -17,6 +22,7 @@ public class LocalInputProvider : IInputProvider
         this.inputKeys = inputKeys;
     }
 
+    // Check all bound keys and return any new/changed inputs this frame
     public List<InputObject> GetInputs()
     {
         var inputs = new List<InputObject>();
@@ -30,66 +36,67 @@ public class LocalInputProvider : IInputProvider
             }
             else continue;
 
+            // Directional keys have special tap/hold logic
             if (canHoldInput.ContainsKey(command))
             {
-                // Change name to held down variant
+                // Build the hold variant name (e.g. Left → LeftHold)
                 var name = command.ToString() + "Hold";
                 InputCommand holdName = Enum.Parse<InputCommand>(name);
 
-                // If key is not pressed
+                // Key not pressed and counter is zero - nothing happening
                 if (!Keyboard.current[key].isPressed && canHoldInput[command] == 0)
                 {
                     continue;
                 }
 
-                // Initial press
+                // First frame the key is pressed - create a pending input (unknown if tap or hold yet)
                 if (Keyboard.current[key].wasPressedThisFrame)
                 {
-                    InputObject heldInput = new InputObject(command, key, true); // Create pending input object
-                    heldDownInputs[holdName] = heldInput; // Save object
-                    inputs.Add(heldInput); // Send object
+                    InputObject heldInput = new InputObject(command, key, true);
+                    heldDownInputs[holdName] = heldInput;
+                    inputs.Add(heldInput);
                     continue;
                 }
 
-                // Released TAP input
+                // Key released before threshold - it was a tap
                 if (!Keyboard.current[key].isPressed && canHoldInput[command] < holdThreshold)
                 {
-                    canHoldInput[command] = 0; // Reset counter
-                    heldDownInputs[holdName].SetIsHeld(false); // Change Pending input -> Tap
-                    heldDownInputs.Remove(holdName); // Remove local input object
+                    canHoldInput[command] = 0;
+                    heldDownInputs[holdName].SetIsHeld(false);
+                    heldDownInputs.Remove(holdName);
                     continue;
                 }
 
-                // If threshold met -> convert Tap to Held
+                // Threshold reached - convert the pending input from tap to hold
                 if (canHoldInput[command] == holdThreshold)
                 {
-                    heldDownInputs[holdName].ChangeInputCommand(holdName); // Change tap command -> held command
-                    heldDownInputs[holdName].GetFrame().ResetFrame(); // Reset frame count
-                    heldDownInputs[holdName].SetIsHeld(true); // Change Pending input -> Held
-                    inputs.Add(heldDownInputs[holdName]); // Signal to remove from buffer + UI update
+                    heldDownInputs[holdName].ChangeInputCommand(holdName);
+                    heldDownInputs[holdName].GetFrame().ResetFrame();
+                    heldDownInputs[holdName].SetIsHeld(true);
+                    inputs.Add(heldDownInputs[holdName]); // Signal to move from buffer to held list
                 }
 
-                // Release HELD input
+                // Key released after threshold - end the hold
                 if (!Keyboard.current[key].isPressed)
                 {
-                    canHoldInput[command] = 0; // Reset counter
-                    heldDownInputs[holdName].GetFrame().DisableFrame(); // Disable held input object
-                    inputs.Add(heldDownInputs[holdName]); // Send disabled object -> signal to remove
-                    heldDownInputs.Remove(holdName); // Remove local hold object
+                    canHoldInput[command] = 0;
+                    heldDownInputs[holdName].GetFrame().DisableFrame(); // Mark as disabled (-1)
+                    inputs.Add(heldDownInputs[holdName]); // Signal to clean up
+                    heldDownInputs.Remove(holdName);
                     continue;
                 }
 
-                // If key held down
+                // Key still held - keep counting frames
                 if (Keyboard.current[key].isPressed)
                 {
-                    // Currently HELD input
                     if (canHoldInput[command] > holdThreshold)
                     {
                         heldDownInputs[holdName].GetFrame().UpdateFrame();
                     }
-                    canHoldInput[command]++; // Increment counter
+                    canHoldInput[command]++;
                 }
             }
+            // Non-directional keys (attacks) - simple press detection, no hold logic
             else if (Keyboard.current[key].wasPressedThisFrame)
             {
                 inputs.Add(new InputObject(command, key));

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Per-player combat manager - activates/deactivates hitboxes each frame based on the current move's combat data
 public class CombatManager
 {
     private CombatDatabase combatDatabase = new CombatDatabase();
@@ -9,9 +10,9 @@ public class CombatManager
 
     private CombatData currentCombatData;
     private string currentMoveId;
-    private HashSet<string> activeHitboxIds = new HashSet<string>();
-    private Dictionary<string, CombatHitboxEntry> activeHitboxEntries = new Dictionary<string, CombatHitboxEntry>();
-    private Dictionary<int, List<CombatHitboxEntry>> phases = new Dictionary<int, List<CombatHitboxEntry>>();
+    private HashSet<string> activeHitboxIds = new HashSet<string>();                        // Which hitboxes are currently enabled
+    private Dictionary<string, CombatHitboxEntry> activeHitboxEntries = new Dictionary<string, CombatHitboxEntry>(); // Maps hitbox ID to its phase entry
+    private Dictionary<int, List<CombatHitboxEntry>> phases = new Dictionary<int, List<CombatHitboxEntry>>();        // Entries grouped by start frame
 
     public CombatManager(MoveExecutor moveExecutor, CollisionBoxManager collisionBoxManager)
     {
@@ -24,6 +25,7 @@ public class CombatManager
         combatDatabase.ReadJson();
     }
 
+    // Each frame: check if the move changed, then activate/deactivate hitboxes based on current frame
     public void Update()
     {
         MoveData currentMove = moveExecutor.CurrentMove;
@@ -32,6 +34,7 @@ public class CombatManager
         string moveId = currentMove.Id;
         int currentFrame = moveExecutor.FrameCounter.GetFrameNumber();
 
+        // If the move changed, clear old hitboxes and load new combat data
         if (moveId != currentMoveId)
         {
             DeactivateAll();
@@ -42,6 +45,7 @@ public class CombatManager
 
         if (currentCombatData == null) return;
 
+        // Activate hitboxes that should be on this frame, deactivate ones that shouldn't
         foreach (CombatHitboxEntry entry in currentCombatData.HitboxEntries)
         {
             bool shouldBeActive = currentFrame >= entry.StartFrame
@@ -63,6 +67,7 @@ public class CombatManager
         }
     }
 
+    // Group hitbox entries by their start frame (used for phase-level hit tracking)
     private void BuildPhases()
     {
         phases.Clear();
@@ -78,6 +83,7 @@ public class CombatManager
         }
     }
 
+    // Turn off all active hitboxes and clear tracking (used on move change or cancel)
     public void DeactivateAll()
     {
         foreach (string id in activeHitboxIds)
@@ -95,6 +101,7 @@ public class CombatManager
         return entry.StartFrame;
     }
 
+    // Look up the active phase entry for a specific hitbox (used by CollisionManager during hit checks)
     public CombatHitboxEntry GetActiveHitboxEntry(string hitboxId)
     {
         if (activeHitboxEntries.TryGetValue(hitboxId, out CombatHitboxEntry entry))

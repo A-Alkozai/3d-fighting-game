@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
+// Utility class that reads a JSON file and populates a dictionary with deserialized items
 public static class JsonLoader
 {
+    // Read JSON from disk, deserialize the "items" array, and add each item to the dictionary by ID
     public static void LoadJSON<T>(Dictionary<string, T> dict, string filePath) where T : IIdentifiable
     {
         if (!File.Exists(filePath))
@@ -32,6 +34,7 @@ public static class JsonLoader
         }
     }
 
+    // Wrapper class matching the JSON structure: { "items": [ ... ] }
     [Serializable]
     private class Wrapper<T>
     {

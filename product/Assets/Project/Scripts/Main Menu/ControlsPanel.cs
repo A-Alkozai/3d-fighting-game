@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
 
+// Panel that displays all rebindable controls and handles the rebinding process
 public class ControlsPanel : MonoBehaviour
 {
     [SerializeField] private Transform contentParent;
@@ -13,8 +14,9 @@ public class ControlsPanel : MonoBehaviour
     private InputKeys inputKeys;
     private MainMenuManager menuManager;
     private List<ControlBindingRow> rows = new List<ControlBindingRow>();
-    private bool isListening = false;
+    private bool isListening = false; // True while waiting for a key press during rebind
 
+    // Store references and wire up buttons, then build the list of binding rows
     public void Initialise(InputKeys inputKeys, MainMenuManager menuManager)
     {
         this.inputKeys = inputKeys;
@@ -26,6 +28,7 @@ public class ControlsPanel : MonoBehaviour
         BuildRows();
     }
 
+    // Destroy old rows, then create one ControlBindingRow per rebindable command
     private void BuildRows()
     {
         foreach (Transform child in contentParent)
@@ -36,7 +39,7 @@ public class ControlsPanel : MonoBehaviour
 
         foreach (var pair in inputKeys.GetAllBindings())
         {
-            // Skip derived commands (Hold/Forward/Backward — not rebindable)
+            // Skip derived commands (Hold/Forward/Backward) - these aren't directly rebindable
             if (IsDirectionalVariant(pair.Key)) continue;
 
             GameObject rowObj = Instantiate(bindingRowPrefab, contentParent);
@@ -46,6 +49,7 @@ public class ControlsPanel : MonoBehaviour
         }
     }
 
+    // Returns true for auto-generated directional variants that shouldn't appear in the controls list
     private bool IsDirectionalVariant(InputCommand command)
     {
         return command == InputCommand.LeftHold ||
@@ -58,17 +62,19 @@ public class ControlsPanel : MonoBehaviour
                command == InputCommand.BackwardHold;
     }
 
+    // Called by a ControlBindingRow when its rebind button is clicked
     public void OnRebindRequested(ControlBindingRow row, InputCommand command)
     {
-        if (isListening) return;
+        if (isListening) return; // Only one rebind at a time
         isListening = true;
         row.SetListening(true);
         StartCoroutine(ListenForKey(row, command));
     }
 
+    // Coroutine that waits each frame for a valid key press, then applies the rebind
     private System.Collections.IEnumerator ListenForKey(ControlBindingRow row, InputCommand command)
     {
-        // Wait a frame so the click doesn't register as the new key
+        // Wait one frame so the button click doesn't register as the new key
         yield return null;
 
         Keyboard keyboard = Keyboard.current;
@@ -83,7 +89,7 @@ public class ControlsPanel : MonoBehaviour
 
         while (pressedKey == Key.None)
         {
-            // Check escape to cancel
+            // Escape cancels the rebind
             if (keyboard.escapeKey.wasPressedThisFrame)
             {
                 isListening = false;
@@ -91,7 +97,7 @@ public class ControlsPanel : MonoBehaviour
                 yield break;
             }
 
-            // Iterate all keys to find which was pressed
+            // Check letter keys A-Z
             for (Key k = Key.A; k <= Key.Z; k++)
             {
                 if (keyboard[k].wasPressedThisFrame)
@@ -101,9 +107,9 @@ public class ControlsPanel : MonoBehaviour
                 }
             }
 
+            // Check number keys 0-9
             if (pressedKey == Key.None)
             {
-                // Check number keys
                 for (Key k = Key.Digit0; k <= Key.Digit9; k++)
                 {
                     if (keyboard[k].wasPressedThisFrame)
@@ -114,9 +120,9 @@ public class ControlsPanel : MonoBehaviour
                 }
             }
 
+            // Check common modifier and punctuation keys
             if (pressedKey == Key.None)
             {
-                // Check common extra keys
                 Key[] extras = {
                     Key.Space, Key.Enter, Key.Tab,
                     Key.LeftShift, Key.RightShift,
@@ -140,7 +146,7 @@ public class ControlsPanel : MonoBehaviour
             yield return null;
         }
 
-        // Check for duplicate binding
+        // Reject the key if it's already bound to another command
         foreach (var pair in inputKeys.GetAllBindings())
         {
             if (pair.Value == pressedKey && pair.Key != command && !IsDirectionalVariant(pair.Key))
@@ -152,6 +158,7 @@ public class ControlsPanel : MonoBehaviour
             }
         }
 
+        // Apply and save the new binding
         inputKeys.SetKey(command, pressedKey);
         inputKeys.Save();
         row.UpdateKey(pressedKey);
@@ -159,6 +166,7 @@ public class ControlsPanel : MonoBehaviour
         isListening = false;
     }
 
+    // Re-read all bindings from InputKeys and update every row's displayed key
     public void Refresh()
     {
         foreach (ControlBindingRow row in rows)
@@ -167,12 +175,14 @@ public class ControlsPanel : MonoBehaviour
         }
     }
 
+    // Reset all bindings to defaults and refresh the display
     private void OnResetDefaults()
     {
         inputKeys.ResetDefaults();
         Refresh();
     }
 
+    // Return to main menu (blocked while a rebind is in progress)
     private void OnBack()
     {
         if (isListening) return;

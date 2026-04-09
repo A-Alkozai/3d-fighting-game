@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+// Panel that lets the player choose how many rounds to win (1-5) before starting a match
 public class RoundSelectionPanel : MonoBehaviour
 {
     [SerializeField] private TMP_Text titleText;
@@ -13,6 +14,7 @@ public class RoundSelectionPanel : MonoBehaviour
 
     private MainMenuManager menuManager;
 
+    // Wire up each button to pass its round count to the menu manager
     public void Initialise(MainMenuManager menuManager)
     {
         this.menuManager = menuManager;
