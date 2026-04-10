@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// Central game loop — owns all core systems, runs the fixed timestep update, manages match flow
+// Central game loop. Owns all core systems, runs the fixed timestep update, and manages match flow.
+// Also handles pausing via ESC and the in-game pause menu.
 public class GameManager : MonoBehaviour
 {
     [SerializeField] UIManager uiManager;
@@ -38,22 +39,22 @@ public class GameManager : MonoBehaviour
     private OptionsPanel pauseOptionsScript;
 
     private int gameFPS = 60;
-    private float logicTimer = 0f;
-    private float logicDeltaTime = 1f / 60f;
-    private bool gameActive = false;
-    private bool koReported = false;
-    private bool initialized = false;
-    private bool isPaused = false;
+    private float logicTimer = 0f;               // Accumulator for the fixed timestep loop
+    private float logicDeltaTime = 1f / 60f;     // One logic frame = 1/60th of a second
+    private bool gameActive = false;              // Gates the entire Update loop
+    private bool koReported = false;              // Prevents reporting the same KO twice in one round
+    private bool initialized = false;             // True after first-time system setup
+    private bool isPaused = false;                // True while the pause menu is open
 
-    private RoundManager.MatchState prevState;
+    private RoundManager.MatchState prevState;    // Tracks state transitions for HandleStateTransitions
 
-    // Called by MainMenuManager — sets up systems on first call, resets for a new match every call
+    // Called by MainMenuManager. Sets up systems on first call, resets for a new match every call.
     public void StartGame(InputKeys inputKeys, int roundsToWin)
     {
         this.inputKeys = inputKeys;
         Application.targetFrameRate = gameFPS;
 
-        // First-time setup
+        // First-time setup: create input, players, camera, stage collision, UI refs, and pause panels
         if (!initialized)
         {
             inputProvider1 = new LocalInputProvider(inputKeys);
@@ -72,16 +73,16 @@ public class GameManager : MonoBehaviour
             healthBarP2 = uiManager.GetHealthBarP2();
             roundHUD = uiManager.GetRoundHUD();
 
-            // Initialise pause menu panels
+            // Initialise pause menu
             pauseMenuScript = pauseMenuPanel.GetComponent<PauseMenuPanel>();
             pauseMenuScript.Initialise(this);
 
-            // Pause controls needs InputKeys to build the binding rows
+            // Pause controls panel needs InputKeys to build the binding rows
             pauseControlsScript = pauseControlsPanel.GetComponent<ControlsPanel>();
             pauseControlsScript.Initialise(inputKeys, null);
             pauseControlsScript.SetGameManager(this);
 
-            // Pause options needs UIManager to toggle recent inputs
+            // Pause options panel needs UIManager to toggle recent inputs
             pauseOptionsScript = pauseOptionsPanel.GetComponent<OptionsPanel>();
             pauseOptionsScript.Initialise(null, uiManager);
             pauseOptionsScript.SetGameManager(this);
@@ -89,44 +90,44 @@ public class GameManager : MonoBehaviour
             initialized = true;
         }
 
-        // Reset players for fresh match
+        // Reset players to starting state
         player1.ResetForRound();
         player2.ResetForRound();
 
-        // Fresh combat/collision systems each match
+        // Fresh combat and collision systems each match (clears hit tracking)
         combatExecutor = new CombatExecutor();
         collisionManager = new CollisionManager(player1, player2, combatExecutor, stageCollision);
 
-        // Fresh round manager
+        // Fresh round manager with chosen rounds to win
         roundManager = new RoundManager(roundsToWin);
         roundHUD.Initialise(roundsToWin);
         roundHUD.ClearCenterText();
         roundManager.StartMatch();
 
-        // Lock input during countdown
+        // Lock both players during the opening countdown
         player1.SetInputLocked(true);
         player2.SetInputLocked(true);
 
-        // Reset game state
+        // Reset match-level flags
         gameActive = true;
         isPaused = false;
         koReported = false;
         logicTimer = 0f;
         prevState = RoundManager.MatchState.Countdown;
 
-        // Make sure pause panels are hidden
+        // Make sure all pause panels are hidden at the start of a match
         pauseMenuPanel.SetActive(false);
         pauseControlsPanel.SetActive(false);
         pauseOptionsPanel.SetActive(false);
 
-        Debug.Log($"[GameManager] Match started — First to {roundsToWin}");
+        Debug.Log($"[GameManager] Match started - First to {roundsToWin}");
     }
 
     void Update()
     {
         if (!gameActive) return;
 
-        // Check for ESC to toggle pause
+        // Check for ESC to toggle the pause menu
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             if (isPaused)
@@ -136,39 +137,49 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        // Don't run game logic while paused
+        // Skip all game logic while paused
         if (isPaused) return;
 
+        // Poll input every visual frame (before fixed steps)
         inputManager.update();
 
+        // Fixed timestep loop. All game logic runs at exactly 60fps.
         while (logicTimer >= logicDeltaTime)
         {
             logicTimer -= logicDeltaTime;
 
+            // Round state machine (countdown, fighting, KO pause, etc.)
             roundManager.Update();
             HandleStateTransitions();
 
+            // If the match over timer expired, go back to the menu
             if (roundManager.MatchOverTimerDone)
             {
                 ReturnToMenu();
                 return;
             }
 
+            // Core gameplay: players then collision
             player1.update();
             player2.update();
             collisionManager.Update();
 
+            // Rotate players to face each other after all movement and collision is resolved
             player1.FaceOpponent(player2.transform);
             player2.FaceOpponent(player1.transform);
 
+            // Check if either player just got KO'd this frame
             CheckKO();
         }
 
+        // Visual updates run every render frame (not fixed)
         UpdateHUD();
         uiManager.update();
         cameraManager.Update();
         logicTimer += Time.deltaTime;
     }
+
+    // --- Pause Menu Methods ---
 
     // Freeze the game and show the pause menu
     public void PauseGame()
@@ -190,7 +201,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("[GameManager] Game resumed");
     }
 
-    // Show controls or options from the pause menu
+    // Show the controls or options panel from the pause menu
     public void ShowPauseSubPanel(string panel)
     {
         pauseMenuPanel.SetActive(false);
@@ -210,7 +221,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Return from a sub-panel back to the pause menu
+    // Return from a sub-panel (controls or options) back to the pause menu
     public void ReturnToPauseMenu()
     {
         pauseControlsPanel.SetActive(false);
@@ -218,7 +229,7 @@ public class GameManager : MonoBehaviour
         pauseMenuPanel.SetActive(true);
     }
 
-    // Quit from pause menu back to the main menu
+    // Quit from the pause menu back to the main menu
     public void QuitToMenu()
     {
         isPaused = false;
@@ -228,6 +239,9 @@ public class GameManager : MonoBehaviour
         ReturnToMenu();
     }
 
+    // --- Round and Match Flow ---
+
+    // Detect when RoundManager changes state and apply side effects (lock input, reset players, etc.)
     private void HandleStateTransitions()
     {
         RoundManager.MatchState currentState = roundManager.State;
@@ -237,6 +251,7 @@ public class GameManager : MonoBehaviour
             switch (currentState)
             {
                 case RoundManager.MatchState.Fighting:
+                    // Unlock players when the fight begins
                     player1.SetInputLocked(false);
                     player2.SetInputLocked(false);
                     koReported = false;
@@ -244,11 +259,13 @@ public class GameManager : MonoBehaviour
                     break;
 
                 case RoundManager.MatchState.KOPause:
+                    // Lock input while showing the KO
                     player1.SetInputLocked(true);
                     player2.SetInputLocked(true);
                     break;
 
                 case RoundManager.MatchState.RoundReset:
+                    // Reset players to starting positions and health for the next round
                     player1.ResetForRound();
                     player2.ResetForRound();
                     player1.SetInputLocked(true);
@@ -259,11 +276,13 @@ public class GameManager : MonoBehaviour
                     break;
 
                 case RoundManager.MatchState.Countdown:
+                    // Keep players locked during countdown
                     player1.SetInputLocked(true);
                     player2.SetInputLocked(true);
                     break;
 
                 case RoundManager.MatchState.MatchOver:
+                    // Lock input and show the final win tally
                     player1.SetInputLocked(true);
                     player2.SetInputLocked(true);
                     roundHUD.UpdateWins(roundManager.P1Wins, roundManager.P2Wins);
@@ -274,6 +293,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Report the first KO detected this round to the RoundManager
     private void CheckKO()
     {
         if (roundManager.State != RoundManager.MatchState.Fighting) return;
@@ -291,6 +311,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Push current health values and round state text to the HUD every render frame
     private void UpdateHUD()
     {
         healthBarP1.UpdateHealth(player1.GetHealthManager().CurrentHealth,
@@ -311,6 +332,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // End the match, reset everything, and hand control back to the main menu
     private void ReturnToMenu()
     {
         gameActive = false;
