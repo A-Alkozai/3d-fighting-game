@@ -36,7 +36,6 @@ public struct StateRules
         {
             Blocks = DisableMovement | InAir | CannotWalk,
             Overrides = PlayerStates.Idle | PlayerStates.Walking | AnyGuard,
-            Next = PlayerStates.Falling  // After jump ends, transition to Falling
         },
         [PlayerStates.Sidestepping] = new StateRules
         {
