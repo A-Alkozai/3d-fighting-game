@@ -15,10 +15,22 @@ public class UIManager : MonoBehaviour
         recentInputsUI.SetActive(isActiveRecentInputsUI);
     }
 
-    // Called every frame from GameManager - keeps debug input UI visibility in sync
+    // Called every frame from GameManager — keeps debug input UI visibility in sync
     public void update()
     {
         recentInputsUI.SetActive(isActiveRecentInputsUI);
+    }
+
+    // Called by OptionsPanel when the toggle changes
+    public void SetRecentInputsActive(bool active)
+    {
+        isActiveRecentInputsUI = active;
+        recentInputsUI.SetActive(active);
+    }
+
+    public bool GetRecentInputsActive()
+    {
+        return isActiveRecentInputsUI;
     }
 
     public RecentInputsUI GetRecentInputsUI()
