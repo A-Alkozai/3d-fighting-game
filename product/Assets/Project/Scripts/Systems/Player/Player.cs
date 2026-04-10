@@ -343,6 +343,26 @@ public class Player : MonoBehaviour, ICollidable
         };
     }
 
+    // Rotate to face the opponent on the horizontal plane and update facing direction for input normalization
+    public void FaceOpponent(Transform opponent)
+    {
+        if (isKO) return;
+
+        Vector3 direction = opponent.position - transform.position;
+        direction.y = 0; // Only rotate horizontally
+
+        if (direction.sqrMagnitude > 0.001f)
+        {
+            transform.rotation = Quaternion.LookRotation(direction);
+
+            // Update facing direction so input normalization (Forward/Backward) stays correct
+            if (direction.x >= 0)
+                stateManager.SetFacingDirection(FacingDirection.Right);
+            else
+                stateManager.SetFacingDirection(FacingDirection.Left);
+        }
+    }
+
     // Draw collision boxes in the editor scene view for debugging
     void OnDrawGizmos()
     {

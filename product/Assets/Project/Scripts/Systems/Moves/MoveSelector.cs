@@ -9,7 +9,6 @@ public class MoveSelector
     private MovesDatabase movesDatabase;
     private StateManager stateManager;
     private MoveExecutor moveExecutor;
-    private FacingDirection facingDirection;
 
     private List<InputObject> activeInput = new List<InputObject>();               // Inputs consumed by the current move
     private List<InputObject> heldInputs = new List<InputObject>();                // Currently held directional inputs
@@ -30,7 +29,6 @@ public class MoveSelector
         this.movesDatabase = movesDatabase;
         this.stateManager = stateManager;
         this.moveExecutor = moveExecutor;
-        facingDirection = stateManager.GetFacingDirection();
     }
 
     // Main update: process buffered inputs, then held inputs, then set fallback if nothing active
@@ -324,11 +322,12 @@ public class MoveSelector
     {
         InputCommand command = input.GetInputCommand();
         InputCommand normalisedCommand = command;
-        FacingDirection facingRight = FacingDirection.Right;
 
-        if (facingDirection == facingRight)
+        // Read current facing direction live instead of using a cached value
+        FacingDirection currentFacing = stateManager.GetFacingDirection();
+
+        if (currentFacing == FacingDirection.Right)
         {
-            // Facing right: Right = Forward, Left = Backward
             switch (command)
             {
                 case InputCommand.Right:
@@ -349,7 +348,6 @@ public class MoveSelector
         }
         else
         {
-            // Facing left: Left = Forward, Right = Backward (reversed)
             switch (command)
             {
                 case InputCommand.Right:

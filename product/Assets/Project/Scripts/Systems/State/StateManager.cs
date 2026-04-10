@@ -88,4 +88,9 @@ public class StateManager
     {
         return facingDirection;
     }
+
+    public void SetFacingDirection(FacingDirection direction)
+    {
+        facingDirection = direction;
+    }
 }

@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 using TMPro;
 
 // Panel that displays all rebindable controls and handles the rebinding process
+// Can be opened from the main menu or the in-game pause menu
 public class ControlsPanel : MonoBehaviour
 {
     [SerializeField] private Transform contentParent;
@@ -13,19 +14,40 @@ public class ControlsPanel : MonoBehaviour
 
     private InputKeys inputKeys;
     private MainMenuManager menuManager;
+    private GameManager gameManager;
     private List<ControlBindingRow> rows = new List<ControlBindingRow>();
-    private bool isListening = false; // True while waiting for a key press during rebind
+    private bool isListening = false;      // True while waiting for a key press during rebind
+    private bool openedFromPause = false;  // Tracks which menu to return to on back
+    private bool initialised = false;      // Prevents adding button listeners more than once
 
     // Store references and wire up buttons, then build the list of binding rows
+    // menuManager can be null if opened from the pause menu
     public void Initialise(InputKeys inputKeys, MainMenuManager menuManager)
     {
         this.inputKeys = inputKeys;
         this.menuManager = menuManager;
 
-        resetDefaultsButton.onClick.AddListener(OnResetDefaults);
-        backButton.onClick.AddListener(OnBack);
+        // Only add listeners once to prevent duplicate calls
+        if (!initialised)
+        {
+            resetDefaultsButton.onClick.AddListener(OnResetDefaults);
+            backButton.onClick.AddListener(OnBack);
+            initialised = true;
+        }
 
         BuildRows();
+    }
+
+    // Store a reference to GameManager so we can return to the pause menu
+    public void SetGameManager(GameManager gameManager)
+    {
+        this.gameManager = gameManager;
+    }
+
+    // Set whether this panel was opened from the pause menu
+    public void SetOpenedFromPause(bool fromPause)
+    {
+        openedFromPause = fromPause;
     }
 
     // Destroy old rows, then create one ControlBindingRow per rebindable command
@@ -39,7 +61,7 @@ public class ControlsPanel : MonoBehaviour
 
         foreach (var pair in inputKeys.GetAllBindings())
         {
-            // Skip derived commands (Hold/Forward/Backward) - these aren't directly rebindable
+            // Skip derived commands (Hold/Forward/Backward) as they are not directly rebindable
             if (IsDirectionalVariant(pair.Key)) continue;
 
             GameObject rowObj = Instantiate(bindingRowPrefab, contentParent);
@@ -49,7 +71,7 @@ public class ControlsPanel : MonoBehaviour
         }
     }
 
-    // Returns true for auto-generated directional variants that shouldn't appear in the controls list
+    // Returns true for auto-generated directional variants that should not appear in the controls list
     private bool IsDirectionalVariant(InputCommand command)
     {
         return command == InputCommand.LeftHold ||
@@ -74,7 +96,7 @@ public class ControlsPanel : MonoBehaviour
     // Coroutine that waits each frame for a valid key press, then applies the rebind
     private System.Collections.IEnumerator ListenForKey(ControlBindingRow row, InputCommand command)
     {
-        // Wait one frame so the button click doesn't register as the new key
+        // Wait one frame so the button click does not register as the new key
         yield return null;
 
         Keyboard keyboard = Keyboard.current;
@@ -146,7 +168,7 @@ public class ControlsPanel : MonoBehaviour
             yield return null;
         }
 
-        // Reject the key if it's already bound to another command
+        // Reject the key if it is already bound to another command
         foreach (var pair in inputKeys.GetAllBindings())
         {
             if (pair.Value == pressedKey && pair.Key != command && !IsDirectionalVariant(pair.Key))
@@ -182,10 +204,19 @@ public class ControlsPanel : MonoBehaviour
         Refresh();
     }
 
-    // Return to main menu (blocked while a rebind is in progress)
+    // Return to whichever menu opened this panel (pause menu or main menu)
     private void OnBack()
     {
+        // Block navigation while a rebind is in progress
         if (isListening) return;
-        menuManager.OnBackToMenu();
+
+        if (openedFromPause && gameManager != null)
+        {
+            gameManager.ReturnToPauseMenu();
+        }
+        else if (menuManager != null)
+        {
+            menuManager.OnBackToMenu();
+        }
     }
 }
