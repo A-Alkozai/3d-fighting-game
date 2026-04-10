@@ -9,13 +9,13 @@ public class CombatCameraMode : ICameraMode
     private float distanceMultiplier = 1.2f;
 
     // Camera vertical positioning
-    private float height = 1.15f;          // Camera height offset above midpoint
+    private float height = 1.5f;          // Camera height offset above midpoint
     private float targetHeight = 1.0f;     // Height the camera looks at (slightly lower than camera)
     private float cameraSide = -1f;        // Which side of the fight line the camera sits on
 
     // Smoothing speeds (higher smoothTime = slower/smoother transitions)
     private float zoomSmoothTime = 0.5f;
-    private float rotationSmoothSpeed = 5f;
+    private float rotationSmoothSpeed = 50f;
     private float directionSmoothTime = 0.5f;
     private float midpointSmoothTime = 0.3f;
 
