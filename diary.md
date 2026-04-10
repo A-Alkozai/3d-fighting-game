@@ -518,5 +518,10 @@ Week 7:   30/03/26 - 03/04/26
              ◇   Problem: Found bugs in state transitions and defensive guarding during integration testing.
              ◇   Solution: Refactored state rules and attack height resolution (High/Mid/Low) so standing and crouching blocks function accurately.
 
-
-
+Week 8:   06/04/26 - 10/04/26
+      ➤    Highly productive week wrapping up major gameplay loops and UI.
+             ◇   Built Main Menu and Pause Menu with dynamic input rebinding functionality.
+             ◇   Implemented Stage Collisions to constrain player movement and camera tracking within arena bounds.
+             ◇   Developed the Match/Round flow, allowing states, input buffers, and positions to reset between rounds.
+      ➤    Problem: Multi-hit combo attacks were registering as a single damage event.
+      ➤    Solution: Refactored combat schemas to track discrete overlapping hitboxes, enabling multi-hit sequences. Added automatic player rotation so characters continuously face each other.
