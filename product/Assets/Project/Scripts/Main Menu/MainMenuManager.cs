@@ -12,6 +12,7 @@ public class MainMenuManager : MonoBehaviour
 
     [Header("Game References")]
     [SerializeField] private GameManager gameManager;
+    [SerializeField] private UIManager uiManager;
     [SerializeField] private GameObject player1Object;
     [SerializeField] private GameObject player2Object;
     [SerializeField] private Camera gameCamera;
@@ -29,7 +30,7 @@ public class MainMenuManager : MonoBehaviour
         controlsPanelScript.Initialise(inputKeys, this);
 
         OptionsPanel optionsPanelScript = optionsPanel.GetComponent<OptionsPanel>();
-        optionsPanelScript.Initialise(this);
+        optionsPanelScript.Initialise(this, uiManager);
 
         roundSelectionPanelScript = roundSelectionPanel.GetComponent<RoundSelectionPanel>();
         roundSelectionPanelScript.Initialise(this);

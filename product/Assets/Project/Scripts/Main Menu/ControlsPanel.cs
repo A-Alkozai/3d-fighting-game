@@ -13,19 +13,39 @@ public class ControlsPanel : MonoBehaviour
 
     private InputKeys inputKeys;
     private MainMenuManager menuManager;
+    private GameManager gameManager;
     private List<ControlBindingRow> rows = new List<ControlBindingRow>();
-    private bool isListening = false; // True while waiting for a key press during rebind
+    private bool isListening = false;
+    private bool openedFromPause = false; // Tracks which menu to return to
+    private bool initialised = false;
 
-    // Store references and wire up buttons, then build the list of binding rows
+    // Called from MainMenuManager for the main menu flow
     public void Initialise(InputKeys inputKeys, MainMenuManager menuManager)
     {
         this.inputKeys = inputKeys;
         this.menuManager = menuManager;
 
-        resetDefaultsButton.onClick.AddListener(OnResetDefaults);
-        backButton.onClick.AddListener(OnBack);
+        // Only add listeners once to prevent duplicate calls
+        if (!initialised)
+        {
+            resetDefaultsButton.onClick.AddListener(OnResetDefaults);
+            backButton.onClick.AddListener(OnBack);
+            initialised = true;
+        }
 
         BuildRows();
+    }
+
+    // Store a reference to GameManager so we can return to pause menu
+    public void SetGameManager(GameManager gameManager)
+    {
+        this.gameManager = gameManager;
+    }
+
+    // Track whether this was opened from the pause menu
+    public void SetOpenedFromPause(bool fromPause)
+    {
+        openedFromPause = fromPause;
     }
 
     // Destroy old rows, then create one ControlBindingRow per rebindable command
@@ -39,7 +59,6 @@ public class ControlsPanel : MonoBehaviour
 
         foreach (var pair in inputKeys.GetAllBindings())
         {
-            // Skip derived commands (Hold/Forward/Backward) - these aren't directly rebindable
             if (IsDirectionalVariant(pair.Key)) continue;
 
             GameObject rowObj = Instantiate(bindingRowPrefab, contentParent);
@@ -49,7 +68,6 @@ public class ControlsPanel : MonoBehaviour
         }
     }
 
-    // Returns true for auto-generated directional variants that shouldn't appear in the controls list
     private bool IsDirectionalVariant(InputCommand command)
     {
         return command == InputCommand.LeftHold ||
@@ -62,19 +80,16 @@ public class ControlsPanel : MonoBehaviour
                command == InputCommand.BackwardHold;
     }
 
-    // Called by a ControlBindingRow when its rebind button is clicked
     public void OnRebindRequested(ControlBindingRow row, InputCommand command)
     {
-        if (isListening) return; // Only one rebind at a time
+        if (isListening) return;
         isListening = true;
         row.SetListening(true);
         StartCoroutine(ListenForKey(row, command));
     }
 
-    // Coroutine that waits each frame for a valid key press, then applies the rebind
     private System.Collections.IEnumerator ListenForKey(ControlBindingRow row, InputCommand command)
     {
-        // Wait one frame so the button click doesn't register as the new key
         yield return null;
 
         Keyboard keyboard = Keyboard.current;
@@ -89,7 +104,6 @@ public class ControlsPanel : MonoBehaviour
 
         while (pressedKey == Key.None)
         {
-            // Escape cancels the rebind
             if (keyboard.escapeKey.wasPressedThisFrame)
             {
                 isListening = false;
@@ -182,10 +196,18 @@ public class ControlsPanel : MonoBehaviour
         Refresh();
     }
 
-    // Return to main menu (blocked while a rebind is in progress)
+    // Return to whichever menu opened this panel
     private void OnBack()
     {
         if (isListening) return;
-        menuManager.OnBackToMenu();
+
+        if (openedFromPause && gameManager != null)
+        {
+            gameManager.ReturnToPauseMenu();
+        }
+        else if (menuManager != null)
+        {
+            menuManager.OnBackToMenu();
+        }
     }
 }
