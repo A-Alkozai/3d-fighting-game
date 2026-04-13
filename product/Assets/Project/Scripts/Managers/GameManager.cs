@@ -64,6 +64,10 @@ public class GameManager : MonoBehaviour
             player1.start();
             player2.start();
 
+            // AI input provider for player 2
+            inputProvider2 = new AIInputProvider(player2, player1);
+            inputManager.AddInputToPlayerMap(inputProvider2, player2);
+
             cameraManager = new CameraManager(camera, player1.transform, player2.transform);
             cameraManager.SetMode(new CombatCameraMode());
 
