@@ -525,3 +525,8 @@ Week 8:   06/04/26 - 10/04/26
              ◇   Developed the Match/Round flow, allowing states, input buffers, and positions to reset between rounds.
       ➤    Problem: Multi-hit combo attacks were registering as a single damage event.
       ➤    Solution: Refactored combat schemas to track discrete overlapping hitboxes, enabling multi-hit sequences. Added automatic player rotation so characters continuously face each other.
+
+Week 9:   13/04/26 - 17/04/26
+      ➤    Began implementation of a single-player CPU opponent.
+             ◇   Created AIInputProvider to algorithmically simulate human button inputs.
+             ◇   Integrated the script with the GameManager to seamlessly swap out local Player 2 inputs with CPU logic.
