@@ -8,6 +8,7 @@ product/[Bb]uild/
 product/[Bb]uilds/
 product/[Ll]ogs/
 product/[Uu]ser[Ss]ettings/
+product/UIElementsSchema/
 *.log
 
 # MemoryCaptures and Recordings
