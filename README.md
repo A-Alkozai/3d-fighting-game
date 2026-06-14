@@ -1,3 +1,55 @@
+# 3D Fighting Game (Unity)
+
+A 3D fighting game built in Unity as a Final Year Project for my dissertation.  
+The game focuses on building a modular combat system, structured gameplay architecture, and responsive character control.
+
+---
+
+## Features
+
+This project focuses on building a structured 3D fighting game with modular systems and scalable gameplay architecture.
+
+### 🥊 Combat System
+- Custom attack and combo logic
+- Hit detection using collision-based systems
+- Character-specific movesets
+- State-driven combat flow (attack, hit, idle, etc.)
+
+### 🏃 Movement & Controls
+- Responsive character movement system
+- Input handling designed for fast-paced gameplay
+- Movement tied into combat states for smoother transitions
+
+### 🎮 Character System
+- Multiple playable characters
+- Individual animations and behaviours per character
+- Modular structure for adding new fighters
+
+### 🧠 Game Architecture
+- Modular script-based system (Combat, Movement, Input, State, Camera)
+- Clean separation of systems for scalability
+- Data-driven structure for characters, stages, and gameplay values
+
+### 🖥️ UI System
+- Health bars and match HUD
+- Main menu and pause menu systems
+- In-game feedback for actions (damage, notifications, etc.)
+
+---
+
+## 📸 Screenshots
+
+![Main Menu](images/main-menu.png)
+![Controls](images/controls.png)
+![Fight](images/fight.png)
+![Kick](images/kick.png)
+![KO](images/ko.png)
+![Colliders](images/colliders.png)
+![Hitbox](images/hitbox.png)
+![Animation States](images/animation-states.png)
+
+---
+
 ## How to play game:
 
 - Install zip from gitlab
@@ -26,6 +78,7 @@
 
 ### Tree:
 
+```
 C:.
 └───product
     ├───Assets
@@ -112,3 +165,4 @@ C:.
     │   │       ├───UI
     │   │       └───Utilities
     │   └───Settings
+```
